@@ -16,9 +16,10 @@ public class Conexion {
 
         try {
 
-            String url = "url_BASE";
-            String user = "TU_USUARIO";
-            String password = "TU_PASSWORD";
+            String url = "URL_BD";
+            String user = "USUARIO_BD";
+            String password = "PASSWORD_BD";
+
 
             con = DriverManager.getConnection(url, user, password);
 
