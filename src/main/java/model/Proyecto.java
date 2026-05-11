@@ -8,10 +8,9 @@ package model;
  *
  * @author USUARIO
  */
-public class Usuario {
+public class Proyecto {
     public int id;
     public String nombre;
-    public String correo;
-    public String rol;
-    public String password;
+    public String color;
+    public String estado;
 }

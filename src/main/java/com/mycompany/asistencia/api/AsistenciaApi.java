@@ -21,6 +21,9 @@ import java.sql.ResultSet;
 import model.Asistencia;
 import model.ErrorResponse;
 import model.SuccessResponse;
+import database.UsuarioDAO;
+import database.ProyectoDAO;
+import model.Proyecto;
 
 public class AsistenciaApi {
 
@@ -142,78 +145,15 @@ public class AsistenciaApi {
                     return gson.toJson(new ErrorResponse("id_usuario debe ser un número"));
                 }
 
-                Connection con = Conexion.conectar();
+                AsistenciaDAO dao = new AsistenciaDAO();
 
-                if (con == null) {
-                    res.status(500);
-                    return gson.toJson(new ErrorResponse("Error de conexión a BD"));
-                }
-
-                PreparedStatement ps;
-
-                if (fecha != null && !fecha.isEmpty() && idProyecto != null && !idProyecto.isEmpty()) {
-
-                    String sql = "SELECT * FROM registros_tiempo WHERE id_usuario = ? AND fecha = ? AND id_proyecto = ? ORDER BY fecha DESC LIMIT ? OFFSET ?";
-                    ps = con.prepareStatement(sql);
-
-                    ps.setInt(1, idUsuarioInt);
-                    ps.setString(2, fecha);
-                    ps.setInt(3, Integer.parseInt(idProyecto));
-                    ps.setInt(4, limitInt);
-                    ps.setInt(5, offsetInt);
-
-                } else if (fecha != null && !fecha.isEmpty()) {
-
-                    String sql = "SELECT * FROM registros_tiempo WHERE id_usuario = ? AND fecha = ? ORDER BY fecha DESC LIMIT ? OFFSET ?";
-                    ps = con.prepareStatement(sql);
-
-                    ps.setInt(1, idUsuarioInt);
-                    ps.setString(2, fecha);
-                    ps.setInt(3, limitInt);
-                    ps.setInt(4, offsetInt);
-
-                } else if (idProyecto != null && !idProyecto.isEmpty()) {
-
-                    String sql = "SELECT * FROM registros_tiempo WHERE id_usuario = ? AND id_proyecto = ? ORDER BY fecha DESC LIMIT ? OFFSET ?";
-                    ps = con.prepareStatement(sql);
-
-                    ps.setInt(1, idUsuarioInt);
-                    ps.setInt(2, Integer.parseInt(idProyecto));
-                    ps.setInt(3, limitInt);
-                    ps.setInt(4, offsetInt);
-
-                } else {
-
-                    String sql = "SELECT * FROM registros_tiempo WHERE id_usuario = ? ORDER BY fecha DESC LIMIT ? OFFSET ?";
-                    ps = con.prepareStatement(sql);
-
-                    ps.setInt(1, idUsuarioInt);
-                    ps.setInt(2, limitInt);
-                    ps.setInt(3, offsetInt);
-                }
-
-                ResultSet rs = ps.executeQuery();
-
-                List<Asistencia> lista = new ArrayList<>();
-
-                while (rs.next()) {
-                    Asistencia a = new Asistencia();
-
-                    a.id = rs.getInt("id_registro");
-                    a.id_usuario = rs.getInt("id_usuario");
-                    a.id_proyecto = rs.getInt("id_proyecto");
-
-                    String desc = rs.getString("descripcion");
-                    a.tipo = (desc != null) ? desc : "Sin descripción";
-
-                    a.fecha = rs.getString("fecha");
-
-                    lista.add(a);
-                }
-
-                rs.close();
-                ps.close();
-                con.close();
+                List<Asistencia> lista = dao.listarAsistencias(
+                        idUsuarioInt,
+                        fecha,
+                        idProyecto,
+                        limitInt,
+                        offsetInt
+                );
 
                 res.type("application/json");
                 return gson.toJson(lista);
@@ -224,8 +164,109 @@ public class AsistenciaApi {
                 return new Gson().toJson(new ErrorResponse("Error al listar"));
             }
         });
+                get("/usuarios", (req, res) -> {
 
+            Gson gson = new Gson();
 
+            try {
+
+                UsuarioDAO dao = new UsuarioDAO();
+
+                List<Usuario> lista = dao.listarUsuarios();
+
+                res.type("application/json");
+
+                return gson.toJson(lista);
+
+            } catch (Exception e) {
+
+                e.printStackTrace();
+
+                res.status(500);
+
+                return gson.toJson(
+                        new ErrorResponse("Error al listar usuarios")
+                );
+            }
+        });
+                post("/usuarios", (req, res) -> {
+
+            Gson gson = new Gson();
+
+            try {
+
+                Usuario u = gson.fromJson(req.body(), Usuario.class);
+
+                if (u.nombre == null || u.nombre.isEmpty()
+                        || u.correo == null || u.correo.isEmpty()
+                        || u.password == null || u.password.isEmpty()
+                        || u.rol == null || u.rol.isEmpty()) {
+
+                    res.status(400);
+
+                    return gson.toJson(
+                            new ErrorResponse("Faltan datos del usuario")
+                    );
+                }
+
+                UsuarioDAO dao = new UsuarioDAO();
+
+                boolean creado = dao.crearUsuario(u);
+
+                if (creado) {
+
+                    res.status(201);
+
+                    return gson.toJson(
+                            new SuccessResponse("Usuario creado correctamente")
+                    );
+
+                } else {
+
+                    res.status(500);
+
+                    return gson.toJson(
+                            new ErrorResponse("No se pudo crear usuario")
+                    );
+                }
+
+            } catch (Exception e) {
+
+                e.printStackTrace();
+
+                res.status(500);
+
+                return gson.toJson(
+                        new ErrorResponse("Error en servidor")
+                );
+            }
+        });
+                get("/proyectos", (req, res) -> {
+
+            Gson gson = new Gson();
+
+            try {
+
+                ProyectoDAO dao = new ProyectoDAO();
+
+                List<Proyecto> lista = dao.listarProyectos();
+
+                res.type("application/json");
+
+                return gson.toJson(lista);
+
+            } catch (Exception e) {
+
+                e.printStackTrace();
+
+                res.status(500);
+
+                return gson.toJson(
+                        new ErrorResponse("Error al listar proyectos")
+                );
+            }
+        });
+                
         awaitInitialization();
     }
 }
