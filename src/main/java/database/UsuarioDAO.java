@@ -74,6 +74,63 @@ public class UsuarioDAO {
             e.printStackTrace();
             return false;
         }
+        
     }    
-    
+        public boolean actualizarUsuario(int id, Usuario usuario) {
+
+        try {
+
+            Connection con = Conexion.conectar();
+
+            String sql = "UPDATE usuarios "
+                    + "SET nombre = ?, "
+                    + "email = ?, "
+                    + "rol = ? "
+                    + "WHERE id = ?";
+
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            ps.setString(1, usuario.nombre);
+            ps.setString(2, usuario.correo);
+            ps.setString(3, usuario.rol);
+            ps.setInt(4, id);
+
+            int filas = ps.executeUpdate();
+
+            ps.close();
+            con.close();
+
+            return filas > 0;
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            return false;
+        }
+    }
+            public boolean eliminarUsuario(int id) {
+
+        try {
+
+            Connection con = Conexion.conectar();
+
+            String sql = "DELETE FROM usuarios WHERE id = ?";
+
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            ps.setInt(1, id);
+
+            int filas = ps.executeUpdate();
+
+            ps.close();
+            con.close();
+
+            return filas > 0;
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

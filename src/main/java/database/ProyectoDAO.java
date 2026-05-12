@@ -49,4 +49,97 @@ public class ProyectoDAO {
 
         return lista;
     }
+        public boolean crearProyecto(Proyecto proyecto) {
+
+        try {
+
+            Connection con = Conexion.conectar();
+
+            String sql = "INSERT INTO proyectos "
+                    + "(workspace_id, nombre, color, billable, archivado) "
+                    + "VALUES (?, ?, ?, ?, ?)";
+
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            ps.setInt(1, 1);
+            ps.setString(2, proyecto.nombre);
+            ps.setString(3, proyecto.color);
+            ps.setBoolean(4, true);
+            ps.setBoolean(5, false);
+
+            ps.executeUpdate();
+
+            ps.close();
+            con.close();
+
+            return true;
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            return false;
+        }
+    }
+        public boolean actualizarProyecto(int id, Proyecto proyecto) {
+
+        try {
+
+            Connection con = Conexion.conectar();
+
+            String sql = "UPDATE proyectos "
+                    + "SET nombre = ?, "
+                    + "color = ?, "
+                    + "archivado = ? "
+                    + "WHERE id = ?";
+
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            ps.setString(1, proyecto.nombre);
+            ps.setString(2, proyecto.color);
+
+            boolean archivado =
+                    proyecto.estado.equalsIgnoreCase("archivado");
+
+            ps.setBoolean(3, archivado);
+
+            ps.setInt(4, id);
+
+            int filas = ps.executeUpdate();
+
+            ps.close();
+            con.close();
+
+            return filas > 0;
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            return false;
+        }
+    }
+            public boolean eliminarProyecto(int id) {
+
+         try {
+
+             Connection con = Conexion.conectar();
+
+             String sql = "DELETE FROM proyectos WHERE id = ?";
+
+             PreparedStatement ps = con.prepareStatement(sql);
+
+             ps.setInt(1, id);
+
+             int filas = ps.executeUpdate();
+
+             ps.close();
+             con.close();
+
+             return filas > 0;
+
+         } catch (Exception e) {
+
+             e.printStackTrace();
+             return false;
+         }
+     }
 }

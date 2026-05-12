@@ -241,6 +241,70 @@ public class AsistenciaApi {
                 );
             }
         });
+                        put("/usuarios/:id", (req, res) -> {
+
+             res.type("application/json");
+
+             int id = Integer.parseInt(req.params(":id"));
+
+             Gson gson = new Gson();
+
+             Usuario usuario = gson.fromJson(req.body(), Usuario.class);
+
+             UsuarioDAO dao = new UsuarioDAO();
+
+             boolean actualizado = dao.actualizarUsuario(id, usuario);
+
+             if (actualizado) {
+
+                 return gson.toJson(
+                         new SuccessResponse(
+                                 "Usuario actualizado correctamente"
+                         )
+                 );
+
+             } else {
+
+                 res.status(500);
+
+                 return gson.toJson(
+                         new ErrorResponse(
+                                 "No se pudo actualizar usuario"
+                         )
+                 );
+             }
+         });
+                    delete("/usuarios/:id", (req, res) -> {
+
+            res.type("application/json");
+
+            int id = Integer.parseInt(req.params(":id"));
+
+            UsuarioDAO dao = new UsuarioDAO();
+
+            boolean eliminado = dao.eliminarUsuario(id);
+
+            Gson gson = new Gson();
+
+            if (eliminado) {
+
+                return gson.toJson(
+                        new SuccessResponse(
+                                "Usuario eliminado correctamente"
+                        )
+                );
+
+            } else {
+
+                res.status(500);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "No se pudo eliminar usuario"
+                        )
+                );
+            }
+        });
                 get("/proyectos", (req, res) -> {
 
             Gson gson = new Gson();
@@ -266,7 +330,103 @@ public class AsistenciaApi {
                 );
             }
         });
-                
+                    post("/proyectos", (req, res) -> {
+
+            res.type("application/json");
+
+            Gson gson = new Gson();
+
+            Proyecto proyecto = gson.fromJson(req.body(), Proyecto.class);
+
+            ProyectoDAO dao = new ProyectoDAO();
+
+            boolean creado = dao.crearProyecto(proyecto);
+
+            if (creado) {
+
+                return gson.toJson(
+                        new SuccessResponse(
+                                "Proyecto creado correctamente"
+                        )
+                );
+
+            } else {
+
+                res.status(500);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "No se pudo crear proyecto"
+                        )
+                );
+            }
+        });
+                put("/proyectos/:id", (req, res) -> {
+
+            res.type("application/json");
+
+            int id = Integer.parseInt(req.params(":id"));
+
+            Gson gson = new Gson();
+
+            Proyecto proyecto =
+                    gson.fromJson(req.body(), Proyecto.class);
+
+            ProyectoDAO dao = new ProyectoDAO();
+
+            boolean actualizado =
+                    dao.actualizarProyecto(id, proyecto);
+
+            if (actualizado) {
+
+                return gson.toJson(
+                        new SuccessResponse(
+                                "Proyecto actualizado correctamente"
+                        )
+                );
+
+            } else {
+
+                res.status(500);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "No se pudo actualizar proyecto"
+                        )
+                );
+            }
+        });
+                delete("/proyectos/:id", (req, res) -> {
+
+            res.type("application/json");
+
+            int id = Integer.parseInt(req.params(":id"));
+
+            ProyectoDAO dao = new ProyectoDAO();
+
+            boolean eliminado = dao.eliminarProyecto(id);
+
+            Gson gson = new Gson();
+
+            if (eliminado) {
+
+                return gson.toJson(
+                        new SuccessResponse(
+                                "Proyecto eliminado correctamente"
+                        )
+                );
+
+            } else {
+
+                res.status(500);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "No se pudo eliminar proyecto"
+                        )
+                );
+            }
+        });
         awaitInitialization();
     }
 }

@@ -13,15 +13,9 @@ public class Conexion {
         try {
             Dotenv dotenv = Dotenv.load();
 
-<<<<<<< HEAD
-            String url = "URL_BASE";
-            String user = "USER_BASE";
-            String password = "CONTRA_BASE";
-=======
-            String url = dotenv.get("DB_URL"); 
+            String url = dotenv.get("DB_URL");
             String user = dotenv.get("DB_USER");
-            String password = dotenv.get("DB_PASS");
->>>>>>> 13d49cf960fe86e4d7ed0ac1d4f99ae46f84beac
+            String password = dotenv.get("DB_PASSWORD");
 
             con = DriverManager.getConnection(url, user, password);
 
