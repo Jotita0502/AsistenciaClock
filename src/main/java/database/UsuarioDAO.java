@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 
 import java.util.List;
 import java.util.ArrayList;
+import org.mindrot.jbcrypt.BCrypt;
 
 import model.Usuario;
 
@@ -60,7 +61,13 @@ public class UsuarioDAO {
 
             ps.setString(1, u.nombre);
             ps.setString(2, u.correo);
-            ps.setString(3, u.password);
+            String hash =
+                    BCrypt.hashpw(
+                            u.password,
+                            BCrypt.gensalt()
+                    );
+
+            ps.setString(3, hash);
             ps.setString(4, u.rol);
 
             int filas = ps.executeUpdate();

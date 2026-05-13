@@ -1,53 +1,55 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package database;
 
-import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import org.mindrot.jbcrypt.BCrypt;
+
 import model.Usuario;
 
-/**
- *
- * @author USUARIO
- */
 public class loginDAO {
+
     public static Usuario login(String correo, String password) {
+
         Usuario user = null;
 
         try {
+
             Connection con = Conexion.conectar();
 
-            String sql = "{CALL sp_login_usuario(?, ?)}";
-            CallableStatement cs = con.prepareCall(sql);
+            String sql =
+                    "SELECT * FROM usuarios WHERE email = ?";
 
-            cs.setString(1, correo);
-            cs.setString(2, password);
+            PreparedStatement ps =
+                    con.prepareStatement(sql);
 
-            ResultSet rs = cs.executeQuery();
+            ps.setString(1, correo);
+
+            ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                user = new Usuario();
 
-                user.id = rs.getInt("id_usuario");
-                user.nombre = rs.getString("nombre_usuario");
-                user.correo = rs.getString("correo");
-                user.rol = rs.getString("rol");
+                String hash =
+                        rs.getString("password_hash");
 
-                System.out.println("DEBUG:");
-                System.out.println("ID: " + user.id);
-                System.out.println("Nombre: " + user.nombre);
-                System.out.println("Correo: " + user.correo);
-                System.out.println("Rol: " + user.rol);
+                boolean passwordCorrecta =
+                        BCrypt.checkpw(password, hash);
 
-                System.out.println("Login correcto");
-            } else {
-                System.out.println("Usuario o clave incorrectos");
+                if (passwordCorrecta) {
+
+                    user = new Usuario();
+
+                    user.id = rs.getInt("id");
+                    user.nombre = rs.getString("nombre");
+                    user.correo = rs.getString("email");
+                    user.rol = rs.getString("rol");
+                }
             }
+
+            rs.close();
+            ps.close();
             con.close();
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         }

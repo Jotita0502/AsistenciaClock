@@ -24,6 +24,9 @@ import model.SuccessResponse;
 import database.UsuarioDAO;
 import database.ProyectoDAO;
 import model.Proyecto;
+import utils.JwtUtil;
+import model.LoginResponse;
+import static spark.Spark.before;
 
 public class AsistenciaApi {
 
@@ -32,6 +35,46 @@ public class AsistenciaApi {
         port(4567);
 
         System.out.println("🔥 API INICIADA 🔥");
+
+                before((request, response) -> {
+
+            String path = request.pathInfo();
+
+            // rutas públicas
+            if (path.equals("/login")
+                    || path.equals("/test")
+                    || path.equals("/test-conexion")
+                    || (path.equals("/usuarios")
+                    && request.requestMethod().equals("POST"))) {
+
+                return;
+            }
+            String authHeader =
+                    request.headers("Authorization");
+
+            if (authHeader == null
+                    || !authHeader.startsWith("Bearer ")) {
+
+                halt(
+                        401,
+                        "{\"error\":\"Token requerido\"}"
+                );
+            }
+
+            String token =
+                    authHeader.replace("Bearer ", "");
+
+            boolean valido =
+                    JwtUtil.validarToken(token);
+
+            if (!valido) {
+
+                halt(
+                        401,
+                        "{\"error\":\"Token inválido\"}"
+                );
+            }
+        });
 
         get("/test", (req, res) -> {
             return "API funcionando";
@@ -64,7 +107,17 @@ public class AsistenciaApi {
                 res.type("application/json");
 
                 if (user != null) {
-                    return gson.toJson(user);
+
+                    String token = JwtUtil.generarToken(
+                            user.id,
+                            user.correo
+                    );
+
+                    LoginResponse response =
+                            new LoginResponse(token, user);
+
+                    return gson.toJson(response);
+
                 } else {
                     res.status(401);
                     return gson.toJson(new ErrorResponse("Credenciales incorrectas"));
