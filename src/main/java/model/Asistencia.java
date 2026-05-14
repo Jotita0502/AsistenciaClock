@@ -1,13 +1,24 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package model;
 
 public class Asistencia {
+
     public int id;
-    public int id_usuario;
-    public int id_proyecto;
-    public String tipo;
-    public String fecha;
+
+    public int usuario_id;
+
+    public int workspace_id;
+
+    public Integer proyecto_id;
+
+    public Integer tarea_id;
+
+    public String descripcion;
+
+    public String inicio;
+
+    public String fin;
+
+    public Integer duracion_seg;
+
+    public boolean billable;
 }

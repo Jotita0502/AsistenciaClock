@@ -200,13 +200,7 @@ public class AsistenciaApi {
 
                 AsistenciaDAO dao = new AsistenciaDAO();
 
-                List<Asistencia> lista = dao.listarAsistencias(
-                        idUsuarioInt,
-                        fecha,
-                        idProyecto,
-                        limitInt,
-                        offsetInt
-                );
+                List<Asistencia> lista = dao.listarAsistencias();
 
                 res.type("application/json");
                 return gson.toJson(lista);
@@ -479,6 +473,103 @@ public class AsistenciaApi {
                         )
                 );
             }
+        });
+                post("/timer/iniciar", (req, res) -> {
+
+            res.type("application/json");
+
+            Gson gson = new Gson();
+
+            Asistencia asistencia = gson.fromJson(
+                    req.body(),
+                    Asistencia.class
+            );
+
+            AsistenciaDAO dao = new AsistenciaDAO();
+
+            boolean iniciado = dao.iniciarTimer(asistencia);
+
+            if (iniciado) {
+
+                return gson.toJson(
+                        new SuccessResponse(
+                                "Timer iniciado correctamente"
+                        )
+                );
+
+            } else {
+
+                res.status(400);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "Ya existe un timer activo"
+                        )
+                );
+            }
+        }); 
+                post("/timer/detener", (req, res) -> {
+
+            res.type("application/json");
+
+            Gson gson = new Gson();
+
+            Asistencia asistencia = gson.fromJson(
+                    req.body(),
+                    Asistencia.class
+            );
+
+            AsistenciaDAO dao = new AsistenciaDAO();
+
+            boolean detenido = dao.detenerTimer(
+                    asistencia.usuario_id
+            );
+
+            if (detenido) {
+
+                return gson.toJson(
+                        new SuccessResponse(
+                                "Timer detenido correctamente"
+                        )
+                );
+
+            } else {
+
+                res.status(400);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "No existe timer activo"
+                        )
+                );
+            }
+        });
+            get("/timer/historial", (req, res) -> {
+
+            res.type("application/json");
+
+            Gson gson = new Gson();
+
+            String idUsuario = req.queryParams("id_usuario");
+
+            if (idUsuario == null || idUsuario.isEmpty()) {
+
+                res.status(400);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "Falta id_usuario"
+                        )
+                );
+            }
+
+            AsistenciaDAO dao = new AsistenciaDAO();
+
+            List<Asistencia> lista = dao.historialTimers(
+                    Integer.parseInt(idUsuario)
+            );
+
+            return gson.toJson(lista);
         });
         awaitInitialization();
     }
