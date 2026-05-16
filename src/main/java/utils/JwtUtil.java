@@ -2,8 +2,10 @@ package utils;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.auth0.jwt.JWTVerifier;
 import java.util.Date;
+
 
 public class JwtUtil {
 
@@ -39,5 +41,25 @@ public class JwtUtil {
 
             return false;
         }
+        
     }
+        
+      public static DecodedJWT obtenerTokenDecodificado(String token) {
+
+    try {
+
+        Algorithm algorithm =
+                Algorithm.HMAC256(SECRET);
+
+        JWTVerifier verifier =
+                JWT.require(algorithm).build();
+
+        return verifier.verify(token);
+
+    } catch (Exception e) {
+
+        return null;
+    }
+    }
+     
 }

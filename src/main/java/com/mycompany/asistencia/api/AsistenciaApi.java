@@ -27,55 +27,59 @@ import model.Proyecto;
 import utils.JwtUtil;
 import model.LoginResponse;
 import static spark.Spark.before;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.google.gson.JsonObject;
 
 public class AsistenciaApi {
 
     public static void main(String[] args) {
 
-        port(4567);
+    port(4567);
 
-        System.out.println("🔥 API INICIADA 🔥");
+    System.out.println("🔥 API INICIADA 🔥");
 
-                before((request, response) -> {
+    before((request, response) -> {
 
-            String path = request.pathInfo();
+        String path = request.pathInfo();
 
-            // rutas públicas
-            if (path.equals("/login")
-                    || path.equals("/test")
-                    || path.equals("/test-conexion")
-                    || (path.equals("/usuarios")
-                    && request.requestMethod().equals("POST"))) {
+        // rutas públicas
+        if (path.equals("/login")
+                || path.equals("/test")
+                || path.equals("/test-conexion")
+                || (path.equals("/usuarios")
+                && request.requestMethod().equals("POST"))) {
 
-                return;
-            }
-            String authHeader =
-                    request.headers("Authorization");
+            return;
+        }
 
-            if (authHeader == null
-                    || !authHeader.startsWith("Bearer ")) {
+        String authHeader =
+                request.headers("Authorization");
 
-                halt(
-                        401,
-                        "{\"error\":\"Token requerido\"}"
-                );
-            }
+        if (authHeader == null
+                || !authHeader.startsWith("Bearer ")) {
 
-            String token =
-                    authHeader.replace("Bearer ", "");
+            halt(
+                    401,
+                    "{\"error\":\"Token requerido\"}"
+            );
+        }
 
-            boolean valido =
-                    JwtUtil.validarToken(token);
+        String token =
+                authHeader.replace("Bearer ", "");
 
-            if (!valido) {
+        boolean valido =
+                JwtUtil.validarToken(token);
 
-                halt(
-                        401,
-                        "{\"error\":\"Token inválido\"}"
-                );
-            }
-        });
+        if (!valido) {
 
+            halt(
+                    401,
+                    "{\"error\":\"Token inválido\"}"
+            );
+        }
+    });
+
+    // AQUÍ empiezan tus rutas
         get("/test", (req, res) -> {
             return "API funcionando";
         });
@@ -570,6 +574,37 @@ public class AsistenciaApi {
             );
 
             return gson.toJson(lista);
+        });
+                get("/timer/activo", (req, res) -> {
+
+            res.type("application/json");
+
+            Gson gson = new Gson();
+
+            String authHeader =
+                    req.headers("Authorization");
+
+            String token =
+                    authHeader.replace("Bearer ", "");
+
+            DecodedJWT jwt =
+                    JwtUtil.obtenerTokenDecodificado(token);
+
+            int usuarioId =
+                    jwt.getClaim("id").asInt();
+
+            AsistenciaDAO dao = new AsistenciaDAO();
+
+            Asistencia timer = dao.obtenerTimerActivo(usuarioId);
+
+            if (timer == null) {
+
+                return gson.toJson(
+                        new ErrorResponse("No hay timer activo")
+                );
+            }
+
+            return gson.toJson(timer);
         });
         awaitInitialization();
     }

@@ -188,7 +188,63 @@ public class AsistenciaDAO {
             e.printStackTrace();
             return false;
         }
+        
         }    
+        
+        public Asistencia obtenerTimerActivo(int usuarioId) {
+
+    try {
+
+        Connection con = Conexion.conectar();
+
+        String sql = "SELECT * FROM registros_tiempo "
+                + "WHERE usuario_id = ? AND fin IS NULL "
+                + "LIMIT 1";
+
+        PreparedStatement ps = con.prepareStatement(sql);
+
+        ps.setInt(1, usuarioId);
+
+        ResultSet rs = ps.executeQuery();
+
+        Asistencia a = null;
+
+        if (rs.next()) {
+
+            a = new Asistencia();
+
+            a.id = rs.getInt("id");
+
+            a.usuario_id = rs.getInt("usuario_id");
+
+            a.workspace_id = rs.getInt("workspace_id");
+
+            a.proyecto_id = rs.getInt("proyecto_id");
+
+            a.descripcion = rs.getString("descripcion");
+
+            a.inicio = rs.getString("inicio");
+
+            a.fin = rs.getString("fin");
+
+            a.duracion_seg = rs.getInt("duracion_seg");
+
+            a.billable = rs.getBoolean("billable");
+        }
+
+        rs.close();
+        ps.close();
+        con.close();
+
+        return a;
+
+    } catch (Exception e) {
+
+        e.printStackTrace();
+        return null;
+    }
+}
+        
                 public List<Asistencia> historialTimers(int usuarioId) {
 
             List<Asistencia> lista = new ArrayList<>();
@@ -240,7 +296,7 @@ public class AsistenciaDAO {
 
                 e.printStackTrace();
             }
-
+            
             return lista;
         }
     }
