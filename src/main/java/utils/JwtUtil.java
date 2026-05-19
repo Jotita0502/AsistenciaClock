@@ -6,25 +6,34 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.JWTVerifier;
 import java.util.Date;
 
-
 public class JwtUtil {
 
     private static final String SECRET = "MI_CLAVE_SUPER_SECRETA";
 
-    public static String generarToken(int id, String correo) {
+    public static String generarToken(
+            int id,
+            String correo,
+            String rol
+    ) {
 
         Algorithm algorithm = Algorithm.HMAC256(SECRET);
 
         String token = JWT.create()
                 .withClaim("id", id)
                 .withClaim("correo", correo)
+                .withClaim("rol", rol)
                 .withIssuedAt(new Date())
-                .withExpiresAt(new Date(System.currentTimeMillis() + 86400000))
+                .withExpiresAt(
+                        new Date(
+                                System.currentTimeMillis() + 86400000
+                        )
+                )
                 .sign(algorithm);
 
         return token;
     }
-        public static boolean validarToken(String token) {
+
+    public static boolean validarToken(String token) {
 
         try {
 
@@ -41,25 +50,23 @@ public class JwtUtil {
 
             return false;
         }
-        
     }
-        
-      public static DecodedJWT obtenerTokenDecodificado(String token) {
 
-    try {
+    public static DecodedJWT obtenerTokenDecodificado(String token) {
 
-        Algorithm algorithm =
-                Algorithm.HMAC256(SECRET);
+        try {
 
-        JWTVerifier verifier =
-                JWT.require(algorithm).build();
+            Algorithm algorithm =
+                    Algorithm.HMAC256(SECRET);
 
-        return verifier.verify(token);
+            JWTVerifier verifier =
+                    JWT.require(algorithm).build();
 
-    } catch (Exception e) {
+            return verifier.verify(token);
 
-        return null;
+        } catch (Exception e) {
+
+            return null;
+        }
     }
-    }
-     
 }

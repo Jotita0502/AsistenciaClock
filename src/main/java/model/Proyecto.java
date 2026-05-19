@@ -8,9 +8,18 @@ package model;
  *
  * @author USUARIO
  */
+
 public class Proyecto {
+
     public int id;
+
+    public int workspace_id;
+
     public String nombre;
+
     public String color;
-    public String estado;
+
+    public boolean billable;
+
+    public boolean archivado;
 }

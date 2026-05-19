@@ -19,7 +19,7 @@ public class ProyectoDAO {
 
             Connection con = Conexion.conectar();
 
-            String sql = "SELECT id, nombre, color, archivado FROM proyectos";
+            String sql = "SELECT * FROM proyectos";
 
             PreparedStatement ps = con.prepareStatement(sql);
 
@@ -32,9 +32,9 @@ public class ProyectoDAO {
                 p.id = rs.getInt("id");
                 p.nombre = rs.getString("nombre");
                 p.color = rs.getString("color");
-                boolean archivado = rs.getBoolean("archivado");
-
-                p.estado = archivado ? "archivado" : "activo";
+                p.workspace_id = rs.getInt("workspace_id");
+                p.billable = rs.getBoolean("billable");
+                p.archivado = rs.getBoolean("archivado");
                 
                 lista.add(p);
             }
@@ -61,11 +61,11 @@ public class ProyectoDAO {
 
             PreparedStatement ps = con.prepareStatement(sql);
 
-            ps.setInt(1, 1);
+            ps.setInt(1, proyecto.workspace_id);
             ps.setString(2, proyecto.nombre);
             ps.setString(3, proyecto.color);
-            ps.setBoolean(4, true);
-            ps.setBoolean(5, false);
+            ps.setBoolean(4, proyecto.billable);
+            ps.setBoolean(5, proyecto.archivado);
 
             ps.executeUpdate();
 
@@ -96,11 +96,12 @@ public class ProyectoDAO {
 
             ps.setString(1, proyecto.nombre);
             ps.setString(2, proyecto.color);
+            ps.setString(1, proyecto.nombre);
+            ps.setString(2, proyecto.color);
+            ps.setBoolean(3, proyecto.archivado);
+            ps.setInt(4, id);
 
-            boolean archivado =
-                    proyecto.estado.equalsIgnoreCase("archivado");
-
-            ps.setBoolean(3, archivado);
+           ps.setBoolean(3, proyecto.archivado);
 
             ps.setInt(4, id);
 

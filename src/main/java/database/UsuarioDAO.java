@@ -89,25 +89,64 @@ public class UsuarioDAO {
 
             Connection con = Conexion.conectar();
 
-            String sql = "UPDATE usuarios "
-                    + "SET nombre = ?, "
-                    + "email = ?, "
-                    + "rol = ? "
-                    + "WHERE id = ?";
+            String sql;
 
-            PreparedStatement ps = con.prepareStatement(sql);
+            // SI VIENE PASSWORD
+            if (usuario.password != null
+                    && !usuario.password.trim().isEmpty()) {
 
-            ps.setString(1, usuario.nombre);
-            ps.setString(2, usuario.correo);
-            ps.setString(3, usuario.rol);
-            ps.setInt(4, id);
+                sql = "UPDATE usuarios "
+                        + "SET nombre = ?, "
+                        + "email = ?, "
+                        + "password_hash = ?, "
+                        + "rol = ? "
+                        + "WHERE id = ?";
 
-            int filas = ps.executeUpdate();
+                PreparedStatement ps = con.prepareStatement(sql);
 
-            ps.close();
-            con.close();
+                String hash =
+                        BCrypt.hashpw(
+                                usuario.password,
+                                BCrypt.gensalt()
+                        );
 
-            return filas > 0;
+                ps.setString(1, usuario.nombre);
+                ps.setString(2, usuario.correo);
+                ps.setString(3, hash);
+                ps.setString(4, usuario.rol);
+                ps.setInt(5, id);
+
+                int filas = ps.executeUpdate();
+
+                ps.close();
+                con.close();
+
+                return filas > 0;
+
+            } else {
+
+                // SIN PASSWORD
+
+                sql = "UPDATE usuarios "
+                        + "SET nombre = ?, "
+                        + "email = ?, "
+                        + "rol = ? "
+                        + "WHERE id = ?";
+
+                PreparedStatement ps = con.prepareStatement(sql);
+
+                ps.setString(1, usuario.nombre);
+                ps.setString(2, usuario.correo);
+                ps.setString(3, usuario.rol);
+                ps.setInt(4, id);
+
+                int filas = ps.executeUpdate();
+
+                ps.close();
+                con.close();
+
+                return filas > 0;
+            }
 
         } catch (Exception e) {
 

@@ -46,8 +46,7 @@ public class AsistenciaApi {
         if (path.equals("/login")
                 || path.equals("/test")
                 || path.equals("/test-conexion")
-                || (path.equals("/usuarios")
-                && request.requestMethod().equals("POST"))) {
+                ) {
 
             return;
         }
@@ -69,7 +68,18 @@ public class AsistenciaApi {
 
         boolean valido =
                 JwtUtil.validarToken(token);
+        DecodedJWT jwt =
+        JwtUtil.obtenerTokenDecodificado(token);
 
+        String rol =
+                jwt.getClaim("rol").asString();
+
+        request.attribute("rol", rol);
+
+        int usuarioId =
+                jwt.getClaim("id").asInt();
+
+        request.attribute("usuario_id", usuarioId);
         if (!valido) {
 
             halt(
@@ -114,7 +124,8 @@ public class AsistenciaApi {
 
                     String token = JwtUtil.generarToken(
                             user.id,
-                            user.correo
+                            user.correo,
+                            user.rol
                     );
 
                     LoginResponse response =
@@ -243,22 +254,91 @@ public class AsistenciaApi {
                 post("/usuarios", (req, res) -> {
 
             Gson gson = new Gson();
+            String rol = req.attribute("rol");
 
+            if (!rol.equals("ADMIN")) {
+
+                res.status(403);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "Acceso denegado"
+                        )
+                );
+            }
             try {
 
                 Usuario u = gson.fromJson(req.body(), Usuario.class);
 
-                if (u.nombre == null || u.nombre.isEmpty()
-                        || u.correo == null || u.correo.isEmpty()
-                        || u.password == null || u.password.isEmpty()
-                        || u.rol == null || u.rol.isEmpty()) {
+                            // VALIDAR NOMBRE
 
-                    res.status(400);
+            if (u.nombre == null
+                    || u.nombre.trim().isEmpty()) {
 
-                    return gson.toJson(
-                            new ErrorResponse("Faltan datos del usuario")
-                    );
-                }
+                res.status(400);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "El nombre es obligatorio"
+                        )
+                );
+            }
+
+            // VALIDAR CORREO
+
+            if (u.correo == null
+                    || u.correo.trim().isEmpty()) {
+
+                res.status(400);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "El correo es obligatorio"
+                        )
+                );
+            }
+
+            // VALIDAR PASSWORD
+
+            if (u.password == null
+                    || u.password.trim().isEmpty()) {
+
+                res.status(400);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "La contraseña es obligatoria"
+                        )
+                );
+            }
+
+            // VALIDAR LONGITUD PASSWORD
+
+            if (u.password.length() < 6) {
+
+                res.status(400);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "La contraseña debe tener mínimo 6 caracteres"
+                        )
+                );
+            }
+
+            // VALIDAR ROL
+
+            if (!u.rol.equals("ADMIN")
+                    && !u.rol.equals("MANAGER")
+                    && !u.rol.equals("EMPLEADO")) {
+
+                res.status(400);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "Rol inválido"
+                        )
+                );
+            }
 
                 UsuarioDAO dao = new UsuarioDAO();
 
@@ -292,50 +372,115 @@ public class AsistenciaApi {
                 );
             }
         });
-                        put("/usuarios/:id", (req, res) -> {
+            put("/usuarios/:id", (req, res) -> {
 
-             res.type("application/json");
+    res.type("application/json");
 
-             int id = Integer.parseInt(req.params(":id"));
+    Gson gson = new Gson();
 
-             Gson gson = new Gson();
+    String rol = req.attribute("rol");
 
-             Usuario usuario = gson.fromJson(req.body(), Usuario.class);
+    if (!rol.equals("ADMIN")) {
 
-             UsuarioDAO dao = new UsuarioDAO();
+        res.status(403);
 
-             boolean actualizado = dao.actualizarUsuario(id, usuario);
+        return gson.toJson(
+                new ErrorResponse(
+                        "Acceso denegado"
+                )
+        );
+    }
 
-             if (actualizado) {
+    int id = Integer.parseInt(req.params(":id"));
 
-                 return gson.toJson(
-                         new SuccessResponse(
-                                 "Usuario actualizado correctamente"
-                         )
-                 );
+    Usuario usuario = gson.fromJson(req.body(), Usuario.class);
 
-             } else {
+    // VALIDACIONES
 
-                 res.status(500);
+    if (usuario.nombre == null
+            || usuario.nombre.trim().isEmpty()) {
 
-                 return gson.toJson(
-                         new ErrorResponse(
-                                 "No se pudo actualizar usuario"
-                         )
-                 );
-             }
-         });
-                    delete("/usuarios/:id", (req, res) -> {
+        res.status(400);
+
+        return gson.toJson(
+                new ErrorResponse(
+                        "El nombre es obligatorio"
+                )
+        );
+    }
+
+    if (usuario.correo == null
+            || usuario.correo.trim().isEmpty()) {
+
+        res.status(400);
+
+        return gson.toJson(
+                new ErrorResponse(
+                        "El correo es obligatorio"
+                )
+        );
+    }
+
+    if (!usuario.rol.equals("ADMIN")
+            && !usuario.rol.equals("MANAGER")
+            && !usuario.rol.equals("EMPLEADO")) {
+
+        res.status(400);
+
+        return gson.toJson(
+                new ErrorResponse(
+                        "Rol inválido"
+                )
+        );
+    }
+
+    UsuarioDAO dao = new UsuarioDAO();
+
+    boolean actualizado = dao.actualizarUsuario(id, usuario);
+
+    if (actualizado) {
+
+        return gson.toJson(
+                new SuccessResponse(
+                        "Usuario actualizado correctamente"
+                )
+        );
+
+    } else {
+
+        res.status(500);
+
+        return gson.toJson(
+                new ErrorResponse(
+                        "No se pudo actualizar usuario"
+                )
+        );
+    }
+});
+            delete("/usuarios/:id", (req, res) -> {
 
             res.type("application/json");
+
+            Gson gson = new Gson();
+
+            String rol = req.attribute("rol");
+
+            if (!rol.equals("ADMIN")) {
+
+                res.status(403);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "Acceso denegado"
+                        )
+                );
+            }
 
             int id = Integer.parseInt(req.params(":id"));
 
             UsuarioDAO dao = new UsuarioDAO();
 
             boolean eliminado = dao.eliminarUsuario(id);
-
-            Gson gson = new Gson();
 
             if (eliminado) {
 
@@ -381,33 +526,98 @@ public class AsistenciaApi {
                 );
             }
         });
-                    post("/proyectos", (req, res) -> {
+            post("/proyectos", (req, res) -> {
 
             res.type("application/json");
 
             Gson gson = new Gson();
+            String rol = req.attribute("rol");
 
-            Proyecto proyecto = gson.fromJson(req.body(), Proyecto.class);
+            if (!rol.equals("ADMIN")
+                    && !rol.equals("MANAGER")) {
 
-            ProyectoDAO dao = new ProyectoDAO();
-
-            boolean creado = dao.crearProyecto(proyecto);
-
-            if (creado) {
+                res.status(403);
 
                 return gson.toJson(
-                        new SuccessResponse(
-                                "Proyecto creado correctamente"
+                        new ErrorResponse(
+                                "Acceso denegado"
                         )
                 );
+            }
+            try {
 
-            } else {
+                Proyecto proyecto =
+                        gson.fromJson(req.body(), Proyecto.class);
+
+                // VALIDACIONES
+
+                if (proyecto.nombre == null
+                        || proyecto.nombre.trim().isEmpty()) {
+
+                    res.status(400);
+
+                    return gson.toJson(
+                            new ErrorResponse(
+                                    "El nombre del proyecto es obligatorio"
+                            )
+                    );
+                }
+
+                if (proyecto.color == null
+                        || proyecto.color.trim().isEmpty()) {
+
+                    res.status(400);
+
+                    return gson.toJson(
+                            new ErrorResponse(
+                                    "El color es obligatorio"
+                            )
+                    );
+                }
+
+                if (proyecto.workspace_id <= 0) {
+
+                    res.status(400);
+
+                    return gson.toJson(
+                            new ErrorResponse(
+                                    "workspace_id inválido"
+                            )
+                    );
+                }
+
+                ProyectoDAO dao = new ProyectoDAO();
+
+                boolean creado = dao.crearProyecto(proyecto);
+
+                if (creado) {
+
+                    return gson.toJson(
+                            new SuccessResponse(
+                                    "Proyecto creado correctamente"
+                            )
+                    );
+
+                } else {
+
+                    res.status(500);
+
+                    return gson.toJson(
+                            new ErrorResponse(
+                                    "No se pudo crear proyecto"
+                            )
+                    );
+                }
+
+            } catch (Exception e) {
+
+                e.printStackTrace();
 
                 res.status(500);
 
                 return gson.toJson(
                         new ErrorResponse(
-                                "No se pudo crear proyecto"
+                                "Error en servidor"
                         )
                 );
             }
@@ -419,7 +629,19 @@ public class AsistenciaApi {
             int id = Integer.parseInt(req.params(":id"));
 
             Gson gson = new Gson();
+            String rol = req.attribute("rol");
 
+            if (!rol.equals("ADMIN")
+                    && !rol.equals("MANAGER")) {
+
+                res.status(403);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "Acceso denegado"
+                        )
+                );
+            }
             Proyecto proyecto =
                     gson.fromJson(req.body(), Proyecto.class);
 
@@ -447,17 +669,30 @@ public class AsistenciaApi {
                 );
             }
         });
-                delete("/proyectos/:id", (req, res) -> {
+            delete("/proyectos/:id", (req, res) -> {
 
             res.type("application/json");
+
+            Gson gson = new Gson();
+
+            String rol = req.attribute("rol");
+
+            if (!rol.equals("ADMIN")) {
+
+                res.status(403);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "Acceso denegado"
+                        )
+                );
+            }
 
             int id = Integer.parseInt(req.params(":id"));
 
             ProyectoDAO dao = new ProyectoDAO();
 
             boolean eliminado = dao.eliminarProyecto(id);
-
-            Gson gson = new Gson();
 
             if (eliminado) {
 
