@@ -4,7 +4,7 @@
  */
 package test;
 
-import database.AsistenciaDAO;
+import dao.AsistenciaDAO;
 /**
  *
  * @author USUARIO

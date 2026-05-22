@@ -1,10 +1,13 @@
-package database;
+package dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.CallableStatement;
 import java.util.List;
+
+import db.Conexion;
+
 import java.util.ArrayList;
 
 import model.Proyecto;
@@ -101,7 +104,7 @@ public class ProyectoDAO {
                 return false;
             }
         }
-         public boolean actualizarProyecto(
+        public boolean actualizarProyecto(
                 int id,
                 Proyecto proyecto
         ) {

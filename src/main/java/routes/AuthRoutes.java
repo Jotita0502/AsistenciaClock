@@ -5,7 +5,8 @@
 package routes;
 
 import com.google.gson.Gson;
-import database.loginDAO;
+
+import dao.loginDAO;
 import model.ErrorResponse;
 import model.LoginRequest;
 import model.LoginResponse;

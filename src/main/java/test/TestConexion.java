@@ -4,7 +4,7 @@
  */
 package test;
 
-import database.Conexion;
+import db.Conexion;
 
 public class TestConexion {
 

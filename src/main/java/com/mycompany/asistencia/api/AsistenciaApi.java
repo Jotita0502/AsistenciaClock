@@ -6,29 +6,12 @@
 package com.mycompany.asistencia.api;
 
 import static spark.Spark.*;
-import database.Conexion;
-import database.loginDAO;
-import database.AsistenciaDAO;
-import com.google.gson.Gson;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import model.MarcacionRequest;
-import model.Usuario;
-import model.LoginRequest;
-import java.util.List;
-import java.util.ArrayList;
-import java.sql.ResultSet;
-import model.Asistencia;
-import model.ErrorResponse;
-import model.SuccessResponse;
-import database.UsuarioDAO;
-import database.ProyectoDAO;
-import model.Proyecto;
+
 import utils.JwtUtil;
-import model.LoginResponse;
 import static spark.Spark.before;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.google.gson.JsonObject;
+
+import db.Conexion;
 import routes.AuthRoutes;
 import routes.UsuarioRoutes;
 import routes.ProyectoRoutes;

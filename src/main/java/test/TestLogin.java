@@ -4,7 +4,7 @@
  */
 package test;
 
-import database.loginDAO;
+import dao.loginDAO;
 /**
  *
  * @author USUARIO

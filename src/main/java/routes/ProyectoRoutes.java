@@ -5,7 +5,9 @@
 package routes;
 
 import com.google.gson.Gson;
-import database.ProyectoDAO;
+
+import dao.ProyectoDAO;
+
 import java.util.List;
 import model.ErrorResponse;
 import model.Proyecto;

@@ -1,4 +1,4 @@
-package database;
+package dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.ArrayList;
 import org.mindrot.jbcrypt.BCrypt;
 
+import db.Conexion;
 import model.Usuario;
 
 public class UsuarioDAO {
