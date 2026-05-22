@@ -38,6 +38,8 @@ import routes.TimerRoutes;
 public class AsistenciaApi {
 
     public static void main(String[] args) {
+    String hashNativo = org.mindrot.jbcrypt.BCrypt.hashpw("admin123", org.mindrot.jbcrypt.BCrypt.gensalt(10));
+    System.out.println("🎯 TU HASH PERFECTO ES: " + hashNativo);
 
     port(4567);
 
@@ -45,40 +47,28 @@ public class AsistenciaApi {
 
     before((request, response) -> {
 
-        String path = request.pathInfo();
-
-        // rutas públicas
-        if (path.equals("/login")
-                || path.equals("/test")
-                || path.equals("/test-conexion")
-                ) {
-
+        if (request.requestMethod().equals("OPTIONS")) {
             return;
         }
-
-        String authHeader =
-                request.headers("Authorization");
-
-        if (authHeader == null
-                || !authHeader.startsWith("Bearer ")) {
-
-            halt(
-                    401,
-                    "{\"error\":\"Token requerido\"}"
-            );
+        
+        // 2. EXCLUIR LAS RUTAS PÚBLICAS (Login y Tests)
+        String path = request.pathInfo();
+        if (path.equals("/login") || path.equals("/test") || path.equals("/test-conexion")) {
+            return; // 🟢 Rompe el filtro aquí y deja pasar la petición sin pedir token
         }
 
-        String token =
-                authHeader.replace("Bearer ", "");
+        // 3. VALIDACIÓN DE TOKEN PARA EL RESTO DE RUTAS
+        String authHeader = request.headers("Authorization");
 
-        boolean valido =
-                JwtUtil.validarToken(token);
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            halt(401, "{\"error\":\"Token requerido\"}");
+        }
+
+        String token = authHeader.replace("Bearer ", "");
+        boolean valido = JwtUtil.validarToken(token);
+        
         if (!valido) {
-
-            halt(
-                    401,
-                    "{\"error\":\"Token inválido\"}"
-            );
+            halt(401, "{\"error\":\"Token inválido\"}");
         }
         
         DecodedJWT jwt =

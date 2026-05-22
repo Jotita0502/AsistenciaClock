@@ -17,7 +17,6 @@ import utils.JwtUtil;
  * @author USUARIO
  */
 public class AuthRoutes {
-    
     public static void init(){
         post("/login", (req, res) -> {
 
@@ -25,31 +24,25 @@ public class AuthRoutes {
                 Gson gson = new Gson();
                 LoginRequest data = gson.fromJson(req.body(), LoginRequest.class);
 
-                // 🔥 VALIDACIÓN
                 if (data == null || data.correo == null || data.password == null
                         || data.correo.isEmpty() || data.password.isEmpty()) {
-
                     res.status(400);
                     return gson.toJson(new ErrorResponse("Faltan datos de login"));
                 }
-
                 Usuario user = loginDAO.login(data.correo, data.password);
 
                 res.type("application/json");
 
                 if (user != null) {
-
                     String token = JwtUtil.generarToken(
                             user.id,
                             user.correo,
                             user.rol
                     );
-
                     LoginResponse response =
                             new LoginResponse(token, user);
 
                     return gson.toJson(response);
-
                 } else {
                     res.status(401);
                     return gson.toJson(new ErrorResponse("Credenciales incorrectas"));
