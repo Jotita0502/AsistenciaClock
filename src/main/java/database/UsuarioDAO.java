@@ -3,6 +3,7 @@ package database;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.CallableStatement;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -12,97 +13,95 @@ import model.Usuario;
 
 public class UsuarioDAO {
 
-    public List<Usuario> listarUsuarios() {
+        public List<Usuario> listarUsuarios() {
 
-        List<Usuario> lista = new ArrayList<>();
+         List<Usuario> lista = new ArrayList<>();
 
-        try {
+         try {
 
-            Connection con = Conexion.conectar();
+             Connection con = Conexion.conectar();
 
-            String sql = "SELECT id, nombre, email, rol FROM usuarios";
+             String sql = "{CALL sp_listar_usuarios()}";
 
-            PreparedStatement ps = con.prepareStatement(sql);
+             CallableStatement cs =
+                     con.prepareCall(sql);
 
-            ResultSet rs = ps.executeQuery();
+             ResultSet rs = cs.executeQuery();
 
-            while (rs.next()) {
+             while (rs.next()) {
 
-                Usuario u = new Usuario();
+                 Usuario u = new Usuario();
 
-                u.id = rs.getInt("id");
-                u.nombre = rs.getString("nombre");
-                u.correo = rs.getString("email");
-                u.rol = rs.getString("rol");
-                lista.add(u);
-            }
+                 u.id = rs.getInt("id");
+                 u.nombre = rs.getString("nombre");
+                 u.correo = rs.getString("email");
+                 u.rol = rs.getString("rol");
 
-            rs.close();
-            ps.close();
-            con.close();
+                 lista.add(u);
+             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+             rs.close();
+             cs.close();
+             con.close();
 
-        return lista;
-    }
+         } catch (Exception e) {
+
+             e.printStackTrace();
+         }
+
+         return lista;
+     }
         public boolean crearUsuario(Usuario u) {
 
-        try {
+            try {
 
-            Connection con = Conexion.conectar();
+                Connection con = Conexion.conectar();
 
-            String sql = "INSERT INTO usuarios "
-                    + "(nombre, email, password_hash, rol) "
-                    + "VALUES (?, ?, ?, ?)";
+                String sql = "{CALL sp_crear_usuario(?, ?, ?, ?, ?)}";
 
-            PreparedStatement ps = con.prepareStatement(sql);
+                CallableStatement cs =
+                        con.prepareCall(sql);
 
-            ps.setString(1, u.nombre);
-            ps.setString(2, u.correo);
-            String hash =
-                    BCrypt.hashpw(
-                            u.password,
-                            BCrypt.gensalt()
-                    );
+                String hash =
+                        BCrypt.hashpw(
+                                u.password,
+                                BCrypt.gensalt()
+                        );
 
-            ps.setString(3, hash);
-            ps.setString(4, u.rol);
+                cs.setString(1, u.nombre);
+                cs.setString(2, u.correo);
+                cs.setString(3, hash);
+                cs.setString(4, u.rol);
 
-            int filas = ps.executeUpdate();
+                // OUT PARAM
+                cs.registerOutParameter(5, java.sql.Types.INTEGER);
 
-            ps.close();
-            con.close();
+                cs.execute();
 
-            return filas > 0;
+                int nuevoId = cs.getInt(5);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+                cs.close();
+                con.close();
+
+                return nuevoId > 0;
+
+            } catch (Exception e) {
+
+                e.printStackTrace();
+                return false;
+            }
         }
-        
-    }    
         public boolean actualizarUsuario(int id, Usuario usuario) {
 
-        try {
+            try {
 
-            Connection con = Conexion.conectar();
+                Connection con = Conexion.conectar();
 
-            String sql;
+                String sql =
+                        "{CALL sp_actualizar_usuario(?, ?, ?, ?, ?)}";
 
-            // SI VIENE PASSWORD
-            if (usuario.password != null
-                    && !usuario.password.trim().isEmpty()) {
-
-                sql = "UPDATE usuarios "
-                        + "SET nombre = ?, "
-                        + "email = ?, "
-                        + "password_hash = ?, "
-                        + "rol = ? "
-                        + "WHERE id = ?";
-
-                PreparedStatement ps = con.prepareStatement(sql);
+                CallableStatement cs =
+                        con.prepareCall(sql);
 
                 String hash =
                         BCrypt.hashpw(
@@ -110,73 +109,50 @@ public class UsuarioDAO {
                                 BCrypt.gensalt()
                         );
 
-                ps.setString(1, usuario.nombre);
-                ps.setString(2, usuario.correo);
-                ps.setString(3, hash);
-                ps.setString(4, usuario.rol);
-                ps.setInt(5, id);
+                cs.setInt(1, id);
+                cs.setString(2, usuario.nombre);
+                cs.setString(3, usuario.correo);
+                cs.setString(4, hash);
+                cs.setString(5, usuario.rol);
 
-                int filas = ps.executeUpdate();
+                int filas = cs.executeUpdate();
 
-                ps.close();
+                cs.close();
                 con.close();
 
                 return filas > 0;
 
-            } else {
+            } catch (Exception e) {
 
-                // SIN PASSWORD
-
-                sql = "UPDATE usuarios "
-                        + "SET nombre = ?, "
-                        + "email = ?, "
-                        + "rol = ? "
-                        + "WHERE id = ?";
-
-                PreparedStatement ps = con.prepareStatement(sql);
-
-                ps.setString(1, usuario.nombre);
-                ps.setString(2, usuario.correo);
-                ps.setString(3, usuario.rol);
-                ps.setInt(4, id);
-
-                int filas = ps.executeUpdate();
-
-                ps.close();
-                con.close();
-
-                return filas > 0;
+                e.printStackTrace();
+                return false;
             }
+        }
+        public boolean eliminarUsuario(int id) {
 
-        } catch (Exception e) {
+            try {
 
-            e.printStackTrace();
-            return false;
+                Connection con = Conexion.conectar();
+
+                String sql =
+                        "{CALL sp_eliminar_usuario(?)}";
+
+                CallableStatement cs =
+                        con.prepareCall(sql);
+
+                cs.setInt(1, id);
+
+                int filas = cs.executeUpdate();
+
+                cs.close();
+                con.close();
+
+                return filas > 0;
+
+            } catch (Exception e) {
+
+                e.printStackTrace();
+                return false;
+            }
         }
     }
-            public boolean eliminarUsuario(int id) {
-
-        try {
-
-            Connection con = Conexion.conectar();
-
-            String sql = "DELETE FROM usuarios WHERE id = ?";
-
-            PreparedStatement ps = con.prepareStatement(sql);
-
-            ps.setInt(1, id);
-
-            int filas = ps.executeUpdate();
-
-            ps.close();
-            con.close();
-
-            return filas > 0;
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            return false;
-        }
-    }
-}
