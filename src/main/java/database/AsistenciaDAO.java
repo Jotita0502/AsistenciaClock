@@ -58,56 +58,109 @@ public class AsistenciaDAO {
         }
         
     }
-            public List<Asistencia> listarAsistencias() {
+        public List<Asistencia> listarAsistencias(
+                int usuarioId,
+                String fecha,
+                Integer proyectoId,
+                int limit,
+                int offset
+        ) {
 
-        List<Asistencia> lista = new ArrayList<>();
+            List<Asistencia> lista = new ArrayList<>();
 
-        try {
+            try {
 
-            Connection con = Conexion.conectar();
+                Connection con = Conexion.conectar();
 
-            String sql = "SELECT * FROM registros_tiempo "
-                    + "ORDER BY inicio DESC";
+                String sql =
+                        "SELECT * FROM registros_tiempo "
+                        + "WHERE usuario_id = ? ";
 
-            PreparedStatement ps = con.prepareStatement(sql);
+                // FILTRO FECHA
+                if (fecha != null && !fecha.isEmpty()) {
 
-            ResultSet rs = ps.executeQuery();
+                    sql += "AND DATE(inicio) = ? ";
+                }
 
-            while (rs.next()) {
+                // FILTRO PROYECTO
+                if (proyectoId != null) {
 
-                Asistencia a = new Asistencia();
+                    sql += "AND proyecto_id = ? ";
+                }
 
-                a.id = rs.getInt("id");
+                sql += "ORDER BY inicio DESC "
+                        + "LIMIT ? OFFSET ?";
 
-                a.usuario_id = rs.getInt("usuario_id");
+                PreparedStatement ps =
+                        con.prepareStatement(sql);
 
-                a.workspace_id = rs.getInt("workspace_id");
+                int index = 1;
 
-                a.proyecto_id = rs.getInt("proyecto_id");
+                ps.setInt(index++, usuarioId);
 
-                a.descripcion = rs.getString("descripcion");
+                // FECHA
+                if (fecha != null && !fecha.isEmpty()) {
 
-                a.inicio = rs.getString("inicio");
+                    ps.setString(index++, fecha);
+                }
 
-                a.fin = rs.getString("fin");
+                // PROYECTO
+                if (proyectoId != null) {
 
-                a.duracion_seg = rs.getInt("duracion_seg");
+                    ps.setInt(index++, proyectoId);
+                }
 
-                a.billable = rs.getBoolean("billable");
+                // PAGINACIÓN
+                ps.setInt(index++, limit);
 
-                lista.add(a);
+                ps.setInt(index++, offset);
+
+                ResultSet rs = ps.executeQuery();
+
+                while (rs.next()) {
+
+                    Asistencia a = new Asistencia();
+
+                    a.id = rs.getInt("id");
+
+                    a.usuario_id =
+                            rs.getInt("usuario_id");
+
+                    a.workspace_id =
+                            rs.getInt("workspace_id");
+
+                    a.proyecto_id =
+                            rs.getInt("proyecto_id");
+
+                    a.descripcion =
+                            rs.getString("descripcion");
+
+                    a.inicio =
+                            rs.getString("inicio");
+
+                    a.fin =
+                            rs.getString("fin");
+
+                    a.duracion_seg =
+                            rs.getInt("duracion_seg");
+
+                    a.billable =
+                            rs.getBoolean("billable");
+
+                    lista.add(a);
+                }
+
+                rs.close();
+                ps.close();
+                con.close();
+
+            } catch (Exception e) {
+
+                e.printStackTrace();
             }
 
-            rs.close();
-            ps.close();
-            con.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
+            return lista;
         }
-
-        return lista;
-    }
             public boolean iniciarTimer(Asistencia a) {
 
             try {
