@@ -23,16 +23,11 @@ public class ProyectoDAO {
             Connection con = Conexion.conectar();
 
             String sql =
-                    "{CALL sp_listar_proyectos(?, ?)}";
+                    "{CALL sp_listar_proyectos()}";
 
             CallableStatement cs =
                     con.prepareCall(sql);
 
-            // workspace fijo por ahora
-            cs.setInt(1, 2);
-
-            // no incluir archivados
-            cs.setBoolean(2, false);
 
             ResultSet rs = cs.executeQuery();
 

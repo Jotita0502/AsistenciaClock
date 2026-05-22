@@ -20,6 +20,16 @@ BEGIN
     WHERE email = p_email AND activo = 1;
 END $$
 
+-- Listar todos los usuarios activos
+DROP PROCEDURE IF EXISTS sp_listar_usuarios $$
+CREATE PROCEDURE sp_listar_usuarios()
+BEGIN
+    SELECT id, nombre, email, rol
+    FROM usuarios
+    WHERE activo = 1
+    ORDER BY nombre;
+END $$
+
 -- Crear usuario
 DROP PROCEDURE IF EXISTS sp_crear_usuario $$
 CREATE PROCEDURE sp_crear_usuario(
@@ -33,6 +43,33 @@ BEGIN
     INSERT INTO usuarios (nombre, email, password_hash, rol)
     VALUES (p_nombre, p_email, p_password_hash, p_rol);
     SET p_id = LAST_INSERT_ID();
+END $$
+
+DROP PROCEDURE IF EXISTS sp_actualizar_usuario $$
+CREATE PROCEDURE sp_actualizar_usuario(
+    IN p_id            INT,
+    IN p_nombre        VARCHAR(100),
+    IN p_email         VARCHAR(150),
+    IN p_password_hash VARCHAR(255),
+    IN p_rol           ENUM('ADMIN','MANAGER','EMPLEADO')
+)
+BEGIN
+    UPDATE usuarios 
+    SET nombre = p_nombre,
+        email = p_email,
+        password_hash = p_password_hash,
+        rol = p_rol
+    WHERE id = p_id;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_eliminar_usuario $$
+CREATE PROCEDURE sp_eliminar_usuario(
+    IN p_id INT
+)
+BEGIN
+    UPDATE usuarios 
+    SET activo = 0 
+    WHERE id = p_id;
 END $$
 
 -- Listar usuarios de un workspace
@@ -172,17 +209,13 @@ BEGIN
 END $$
 
 DROP PROCEDURE IF EXISTS sp_listar_proyectos $$
-CREATE PROCEDURE sp_listar_proyectos(
-    IN p_workspace_id INT,
-    IN p_incluir_archivados TINYINT(1)
-)
+CREATE PROCEDURE sp_listar_proyectos()
 BEGIN
-    SELECT p.id, p.nombre, p.color, p.billable, p.archivado,
+    SELECT p.id, p.workspace_id, p.nombre, p.color, p.billable, p.archivado,
            c.id AS cliente_id, c.nombre AS cliente_nombre
     FROM proyectos p
     LEFT JOIN clientes c ON p.cliente_id = c.id
-    WHERE p.workspace_id = p_workspace_id
-      AND (p_incluir_archivados = 1 OR p.archivado = 0)
+    WHERE p.archivado = 0
     ORDER BY p.nombre;
 END $$
 

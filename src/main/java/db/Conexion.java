@@ -20,14 +20,6 @@ public class Conexion {
             String USER = dotenv.get("DB_USER");
             String PASSWORD = dotenv.get("DB_PASSWORD");
 
-            // 🚨 DEBUG: Imprimir valores para ver si Dotenv los está leyendo
-            System.out.println("--- DEBUG CONEXION ---");
-            System.out.println("HOST leido: " + HOST);
-            System.out.println("USER leido: " + USER);
-            System.out.println("URL final: " + URL);
-            System.out.println("----------------------");
-
-            // Si URL es null o tiene la palabra "null", aquí explotará.
             Class.forName("com.mysql.cj.jdbc.Driver");
             return DriverManager.getConnection(URL, USER, PASSWORD);
 
