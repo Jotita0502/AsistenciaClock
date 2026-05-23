@@ -208,6 +208,35 @@ BEGIN
     SET p_id = LAST_INSERT_ID();
 END $$
 
+-- Actualizar proyecto
+DROP PROCEDURE IF EXISTS sp_actualizar_proyecto $$
+CREATE PROCEDURE sp_actualizar_proyecto(
+    IN p_id           INT,
+    IN p_cliente_id   INT,
+    IN p_nombre       VARCHAR(100),
+    IN p_color        CHAR(7),
+    IN p_billable     TINYINT(1)
+)
+BEGIN
+    UPDATE proyectos
+    SET cliente_id = p_cliente_id,
+        nombre     = p_nombre,
+        color      = p_color,
+        billable   = p_billable
+    WHERE id = p_id;
+END $$
+
+-- Eliminar proyecto (baja lógica / archivado)
+DROP PROCEDURE IF EXISTS sp_eliminar_proyecto $$
+CREATE PROCEDURE sp_eliminar_proyecto(
+    IN p_id INT
+)
+BEGIN
+    UPDATE proyectos
+    SET archivado = 1
+    WHERE id = p_id;
+END $$
+
 DROP PROCEDURE IF EXISTS sp_listar_proyectos $$
 CREATE PROCEDURE sp_listar_proyectos()
 BEGIN

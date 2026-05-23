@@ -14,146 +14,139 @@ import model.Usuario;
 
 public class UsuarioDAO {
 
-        public List<Usuario> listarUsuarios() {
+    public List<Usuario> listarUsuarios() {
 
-         List<Usuario> lista = new ArrayList<>();
+        List<Usuario> lista = new ArrayList<>();
 
-         try {
+        try {
 
-             Connection con = Conexion.conectar();
+            Connection con = Conexion.conectar();
 
-             String sql = "{CALL sp_listar_usuarios()}";
+            String sql = "{CALL sp_listar_usuarios()}";
 
-             CallableStatement cs =
-                     con.prepareCall(sql);
+            CallableStatement cs = con.prepareCall(sql);
 
-             ResultSet rs = cs.executeQuery();
+            ResultSet rs = cs.executeQuery();
 
-             while (rs.next()) {
+            while (rs.next()) {
 
-                 Usuario u = new Usuario();
+                Usuario u = new Usuario();
 
-                 u.id = rs.getInt("id");
-                 u.nombre = rs.getString("nombre");
-                 u.correo = rs.getString("email");
-                 u.rol = rs.getString("rol");
+                u.id = rs.getInt("id");
+                u.nombre = rs.getString("nombre");
+                u.correo = rs.getString("email");
+                u.rol = rs.getString("rol");
 
-                 lista.add(u);
-             }
-
-             rs.close();
-             cs.close();
-             con.close();
-
-         } catch (Exception e) {
-
-             e.printStackTrace();
-         }
-
-         return lista;
-        }
-        public boolean crearUsuario(Usuario u) {
-
-            try {
-
-                Connection con = Conexion.conectar();
-
-                String sql = "{CALL sp_crear_usuario(?, ?, ?, ?, ?)}";
-
-                CallableStatement cs =
-                        con.prepareCall(sql);
-
-                String hash =
-                        BCrypt.hashpw(
-                                u.password,
-                                BCrypt.gensalt()
-                        );
-
-                cs.setString(1, u.nombre);
-                cs.setString(2, u.correo);
-                cs.setString(3, hash);
-                cs.setString(4, u.rol);
-
-                // OUT PARAM
-                cs.registerOutParameter(5, java.sql.Types.INTEGER);
-
-                cs.execute();
-
-                int nuevoId = cs.getInt(5);
-
-                cs.close();
-                con.close();
-
-                return nuevoId > 0;
-
-            } catch (Exception e) {
-
-                e.printStackTrace();
-                return false;
+                lista.add(u);
             }
+
+            rs.close();
+            cs.close();
+            con.close();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
         }
-        public boolean actualizarUsuario(int id, Usuario usuario) {
 
-            try {
+        return lista;
+    }
 
-                Connection con = Conexion.conectar();
+    public boolean crearUsuario(Usuario u) {
 
-                String sql =
-                        "{CALL sp_actualizar_usuario(?, ?, ?, ?, ?)}";
+        try {
 
-                CallableStatement cs =
-                        con.prepareCall(sql);
+            Connection con = Conexion.conectar();
 
-                String hash =
-                        BCrypt.hashpw(
-                                usuario.password,
-                                BCrypt.gensalt()
-                        );
+            String sql = "{CALL sp_crear_usuario(?, ?, ?, ?, ?)}";
 
-                cs.setInt(1, id);
-                cs.setString(2, usuario.nombre);
-                cs.setString(3, usuario.correo);
-                cs.setString(4, hash);
-                cs.setString(5, usuario.rol);
+            CallableStatement cs = con.prepareCall(sql);
 
-                int filas = cs.executeUpdate();
+            String hash = BCrypt.hashpw(
+                    u.password,
+                    BCrypt.gensalt());
 
-                cs.close();
-                con.close();
+            cs.setString(1, u.nombre);
+            cs.setString(2, u.correo);
+            cs.setString(3, hash);
+            cs.setString(4, u.rol);
 
-                return filas > 0;
+            // OUT PARAM
+            cs.registerOutParameter(5, java.sql.Types.INTEGER);
 
-            } catch (Exception e) {
+            cs.execute();
 
-                e.printStackTrace();
-                return false;
-            }
-        }
-        public boolean eliminarUsuario(int id) {
+            int nuevoId = cs.getInt(5);
 
-            try {
+            cs.close();
+            con.close();
 
-                Connection con = Conexion.conectar();
+            return nuevoId > 0;
 
-                String sql =
-                        "{CALL sp_eliminar_usuario(?)}";
+        } catch (Exception e) {
 
-                CallableStatement cs =
-                        con.prepareCall(sql);
-
-                cs.setInt(1, id);
-
-                int filas = cs.executeUpdate();
-
-                cs.close();
-                con.close();
-
-                return filas > 0;
-
-            } catch (Exception e) {
-
-                e.printStackTrace();
-                return false;
-            }
+            e.printStackTrace();
+            return false;
         }
     }
+
+    public boolean actualizarUsuario(int id, Usuario usuario) {
+
+        try {
+
+            Connection con = Conexion.conectar();
+
+            String sql = "{CALL sp_actualizar_usuario(?, ?, ?, ?, ?)}";
+
+            CallableStatement cs = con.prepareCall(sql);
+
+            String hash = BCrypt.hashpw(
+                    usuario.password,
+                    BCrypt.gensalt());
+
+            cs.setInt(1, id);
+            cs.setString(2, usuario.nombre);
+            cs.setString(3, usuario.correo);
+            cs.setString(4, hash);
+            cs.setString(5, usuario.rol);
+
+            int filas = cs.executeUpdate();
+
+            cs.close();
+            con.close();
+
+            return filas > 0;
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean eliminarUsuario(int id) {
+
+        try {
+
+            Connection con = Conexion.conectar();
+
+            String sql = "{CALL sp_eliminar_usuario(?)}";
+
+            CallableStatement cs = con.prepareCall(sql);
+
+            cs.setInt(1, id);
+
+            int filas = cs.executeUpdate();
+
+            cs.close();
+            con.close();
+
+            return filas > 0;
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            return false;
+        }
+    }
+}

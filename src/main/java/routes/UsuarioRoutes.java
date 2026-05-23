@@ -22,306 +22,268 @@ import static spark.Spark.put;
  * @author USUARIO
  */
 public class UsuarioRoutes {
-    
-     public static void init() {
-         
-             get("/usuarios", (req, res) -> {
 
-            Gson gson = new Gson();
+        public static void init() {
 
-            try {
+                get("/usuarios", (req, res) -> {
 
-                UsuarioDAO dao = new UsuarioDAO();
+                        Gson gson = new Gson();
 
-                List<Usuario> lista = dao.listarUsuarios();
+                        try {
 
-                res.type("application/json");
+                                UsuarioDAO dao = new UsuarioDAO();
 
-                return gson.toJson(lista);
+                                List<Usuario> lista = dao.listarUsuarios();
 
-            } catch (Exception e) {
+                                res.type("application/json");
 
-                e.printStackTrace();
+                                return gson.toJson(lista);
 
-                res.status(500);
+                        } catch (Exception e) {
 
-                return gson.toJson(
-                        new ErrorResponse("Error al listar usuarios")
-                );
-            }
-        });
+                                e.printStackTrace();
+
+                                res.status(500);
+
+                                return gson.toJson(
+                                                new ErrorResponse("Error al listar usuarios"));
+                        }
+                });
                 post("/usuarios", (req, res) -> {
 
-            Gson gson = new Gson();
-            String rol = req.attribute("rol");
+                        Gson gson = new Gson();
+                        String rol = req.attribute("rol");
 
-            if (!rol.equals("ADMIN")) {
+                        if (!rol.equals("ADMIN")) {
 
-                res.status(403);
+                                res.status(403);
 
-                return gson.toJson(
-                        new ErrorResponse(
-                                "Acceso denegado"
-                        )
-                );
-            }
-            try {
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "Acceso denegado"));
+                        }
+                        try {
 
-                Usuario u = gson.fromJson(req.body(), Usuario.class);
+                                Usuario u = gson.fromJson(req.body(), Usuario.class);
 
-                            // VALIDAR NOMBRE
+                                // VALIDAR NOMBRE
 
-            if (u.nombre == null
-                    || u.nombre.trim().isEmpty()) {
+                                if (u.nombre == null
+                                                || u.nombre.trim().isEmpty()) {
 
-                res.status(400);
+                                        res.status(400);
 
-                return gson.toJson(
-                        new ErrorResponse(
-                                "El nombre es obligatorio"
-                        )
-                );
-            }
+                                        return gson.toJson(
+                                                        new ErrorResponse(
+                                                                        "El nombre es obligatorio"));
+                                }
 
-            // VALIDAR CORREO
+                                // VALIDAR CORREO
 
-            if (u.correo == null
-                    || u.correo.trim().isEmpty()) {
+                                if (u.correo == null
+                                                || u.correo.trim().isEmpty()) {
 
-                res.status(400);
+                                        res.status(400);
 
-                return gson.toJson(
-                        new ErrorResponse(
-                                "El correo es obligatorio"
-                        )
-                );
-            }
+                                        return gson.toJson(
+                                                        new ErrorResponse(
+                                                                        "El correo es obligatorio"));
+                                }
 
-            // VALIDAR PASSWORD
+                                // VALIDAR PASSWORD
 
-            if (u.password == null
-                    || u.password.trim().isEmpty()) {
+                                if (u.password == null
+                                                || u.password.trim().isEmpty()) {
 
-                res.status(400);
+                                        res.status(400);
 
-                return gson.toJson(
-                        new ErrorResponse(
-                                "La contraseña es obligatoria"
-                        )
-                );
-            }
+                                        return gson.toJson(
+                                                        new ErrorResponse(
+                                                                        "La contraseña es obligatoria"));
+                                }
 
-            // VALIDAR LONGITUD PASSWORD
+                                // VALIDAR LONGITUD PASSWORD
 
-            if (u.password.length() < 6) {
+                                if (u.password.length() < 6) {
 
-                res.status(400);
+                                        res.status(400);
 
-                return gson.toJson(
-                        new ErrorResponse(
-                                "La contraseña debe tener mínimo 6 caracteres"
-                        )
-                );
-            }
+                                        return gson.toJson(
+                                                        new ErrorResponse(
+                                                                        "La contraseña debe tener mínimo 6 caracteres"));
+                                }
 
-            // VALIDAR ROL
+                                // VALIDAR ROL
 
-            if (!u.rol.equals("ADMIN")
-                    && !u.rol.equals("MANAGER")
-                    && !u.rol.equals("EMPLEADO")) {
+                                if (!u.rol.equals("ADMIN")
+                                                && !u.rol.equals("MANAGER")
+                                                && !u.rol.equals("EMPLEADO")) {
 
-                res.status(400);
+                                        res.status(400);
 
-                return gson.toJson(
-                        new ErrorResponse(
-                                "Rol inválido"
-                        )
-                );
-            }
+                                        return gson.toJson(
+                                                        new ErrorResponse(
+                                                                        "Rol inválido"));
+                                }
 
-                UsuarioDAO dao = new UsuarioDAO();
+                                UsuarioDAO dao = new UsuarioDAO();
 
-                boolean creado = dao.crearUsuario(u);
+                                boolean creado = dao.crearUsuario(u);
 
-                if (creado) {
+                                if (creado) {
 
-                    res.status(201);
+                                        res.status(201);
 
-                    return gson.toJson(
-                            new SuccessResponse("Usuario creado correctamente")
-                    );
+                                        return gson.toJson(
+                                                        new SuccessResponse("Usuario creado correctamente"));
 
-                } else {
+                                } else {
 
-                    res.status(500);
+                                        res.status(500);
 
-                    return gson.toJson(
-                            new ErrorResponse("No se pudo crear usuario")
-                    );
-                }
+                                        return gson.toJson(
+                                                        new ErrorResponse("No se pudo crear usuario"));
+                                }
 
-            } catch (Exception e) {
+                        } catch (Exception e) {
 
-                e.printStackTrace();
+                                e.printStackTrace();
 
-                res.status(500);
+                                res.status(500);
 
-                return gson.toJson(
-                        new ErrorResponse("Error en servidor")
-                );
-            }
-        });
-            put("/usuarios/:id", (req, res) -> {
+                                return gson.toJson(
+                                                new ErrorResponse("Error en servidor"));
+                        }
+                });
+                put("/usuarios/:id", (req, res) -> {
 
-                res.type("application/json");
+                        res.type("application/json");
 
-                Gson gson = new Gson();
+                        Gson gson = new Gson();
 
-                String rol = req.attribute("rol");
+                        String rol = req.attribute("rol");
 
-                if (!rol.equals("ADMIN")) {
+                        if (!rol.equals("ADMIN")) {
 
-                    res.status(403);
+                                res.status(403);
 
-                    return gson.toJson(
-                            new ErrorResponse(
-                                    "Acceso denegado"
-                            )
-                    );
-                }
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "Acceso denegado"));
+                        }
 
-                int id = Integer.parseInt(req.params(":id"));
+                        int id = Integer.parseInt(req.params(":id"));
 
-                Usuario usuario = gson.fromJson(req.body(), Usuario.class);
+                        Usuario usuario = gson.fromJson(req.body(), Usuario.class);
 
-                // VALIDACIONES
+                        // VALIDACIONES
 
-                if (usuario.nombre == null
-                        || usuario.nombre.trim().isEmpty()) {
+                        if (usuario.nombre == null
+                                        || usuario.nombre.trim().isEmpty()) {
 
-                    res.status(400);
+                                res.status(400);
 
-                    return gson.toJson(
-                            new ErrorResponse(
-                                    "El nombre es obligatorio"
-                            )
-                    );
-                }
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "El nombre es obligatorio"));
+                        }
 
-                if (usuario.correo == null
-                        || usuario.correo.trim().isEmpty()) {
+                        if (usuario.correo == null
+                                        || usuario.correo.trim().isEmpty()) {
 
-                    res.status(400);
+                                res.status(400);
 
-                    return gson.toJson(
-                            new ErrorResponse(
-                                    "El correo es obligatorio"
-                            )
-                    );
-                }
-                if (usuario.password == null
-                        || usuario.password.trim().isEmpty()) {
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "El correo es obligatorio"));
+                        }
+                        if (usuario.password == null
+                                        || usuario.password.trim().isEmpty()) {
 
-                    res.status(400);
+                                res.status(400);
 
-                    return gson.toJson(
-                            new ErrorResponse(
-                                    "La contraseña es obligatoria"
-                            )
-                    );
-                }
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "La contraseña es obligatoria"));
+                        }
 
-                if (usuario.password.length() < 6) {
+                        if (usuario.password.length() < 6) {
 
-                    res.status(400);
+                                res.status(400);
 
-                    return gson.toJson(
-                            new ErrorResponse(
-                                    "La contraseña debe tener mínimo 6 caracteres"
-                            )
-                    );
-                }
-                if (!usuario.rol.equals("ADMIN")
-                        && !usuario.rol.equals("MANAGER")
-                        && !usuario.rol.equals("EMPLEADO")) {
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "La contraseña debe tener mínimo 6 caracteres"));
+                        }
+                        if (!usuario.rol.equals("ADMIN")
+                                        && !usuario.rol.equals("MANAGER")
+                                        && !usuario.rol.equals("EMPLEADO")) {
 
-                    res.status(400);
+                                res.status(400);
 
-                    return gson.toJson(
-                            new ErrorResponse(
-                                    "Rol inválido"
-                            )
-                    );
-                }
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "Rol inválido"));
+                        }
 
-                UsuarioDAO dao = new UsuarioDAO();
+                        UsuarioDAO dao = new UsuarioDAO();
 
-                boolean actualizado = dao.actualizarUsuario(id, usuario);
+                        boolean actualizado = dao.actualizarUsuario(id, usuario);
 
-                if (actualizado) {
+                        if (actualizado) {
 
-                    return gson.toJson(
-                            new SuccessResponse(
-                                    "Usuario actualizado correctamente"
-                            )
-                    );
+                                return gson.toJson(
+                                                new SuccessResponse(
+                                                                "Usuario actualizado correctamente"));
 
-                } else {
+                        } else {
 
-                    res.status(500);
+                                res.status(500);
 
-                    return gson.toJson(
-                            new ErrorResponse(
-                                    "No se pudo actualizar usuario"
-                            )
-                    );
-                }
-            });
-            
-            delete("/usuarios/:id", (req, res) -> {
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "No se pudo actualizar usuario"));
+                        }
+                });
 
-            res.type("application/json");
+                delete("/usuarios/:id", (req, res) -> {
 
-            Gson gson = new Gson();
+                        res.type("application/json");
 
-            String rol = req.attribute("rol");
+                        Gson gson = new Gson();
 
-            if (!rol.equals("ADMIN")) {
+                        String rol = req.attribute("rol");
 
-                res.status(403);
+                        if (!rol.equals("ADMIN")) {
 
-                return gson.toJson(
-                        new ErrorResponse(
-                                "Acceso denegado"
-                        )
-                );
-            }
+                                res.status(403);
 
-            int id = Integer.parseInt(req.params(":id"));
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "Acceso denegado"));
+                        }
 
-            UsuarioDAO dao = new UsuarioDAO();
+                        int id = Integer.parseInt(req.params(":id"));
 
-            boolean eliminado = dao.eliminarUsuario(id);
+                        UsuarioDAO dao = new UsuarioDAO();
 
-            if (eliminado) {
+                        boolean eliminado = dao.eliminarUsuario(id);
 
-                return gson.toJson(
-                        new SuccessResponse(
-                                "Usuario eliminado correctamente"
-                        )
-                );
+                        if (eliminado) {
 
-            } else {
+                                return gson.toJson(
+                                                new SuccessResponse(
+                                                                "Usuario eliminado correctamente"));
 
-                res.status(500);
+                        } else {
 
-                return gson.toJson(
-                        new ErrorResponse(
-                                "No se pudo eliminar usuario"
-                        )
-                );
-            }
-        });
-         
-     }
+                                res.status(500);
+
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "No se pudo eliminar usuario"));
+                        }
+                });
+
+        }
 }
