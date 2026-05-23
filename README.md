@@ -47,7 +47,7 @@ El proyecto sigue una arquitectura organizada y modularizada:
 
 ---
 
-## 🔐 Autenticación y Autorización
+## 🔐 Autenticación
 
 La API está protegida por **JSON Web Tokens (JWT)**.
 A excepción de las rutas públicas (`/login`, `/test`, `/test-conexion`), todas las peticiones deben incluir un encabezado HTTP de autorización:
@@ -66,7 +66,7 @@ El sistema maneja tres tipos de roles que controlan el acceso a los diferentes e
 
 ---
 
-## 📡 Endpoints y Funcionalidad
+## 📡 Endpoints
 
 A continuación se detallan los principales recursos expuestos por la API. Todas las respuestas se emiten en formato `application/json`.
 
@@ -104,15 +104,6 @@ A continuación se detallan los principales recursos expuestos por la API. Todas
 | `POST`   | `/proyectos`     | **ADMIN**, **MANAGER** | Crea un proyecto asociado a un workspace. Requiere nombre y color. |
 | `PUT`    | `/proyectos/:id` | **ADMIN**, **MANAGER** | Actualiza las propiedades de un proyecto.                          |
 | `DELETE` | `/proyectos/:id` | **ADMIN**              | Archiva o elimina lógicamente un proyecto por su ID.               |
-
-### ⏱️ Timers y Asistencia (Gestión de Tiempos)
-
-| Método | Endpoint           | Rol Requerido | Descripción                                                                                                    |
-| ------ | ------------------ | ------------- | -------------------------------------------------------------------------------------------------------------- |
-| `GET`  | `/timer/active`    | Autenticado   | Devuelve el timer actualmente activo (en curso) del usuario. Retorna 404 si no hay ninguno.                    |
-| `GET`  | `/timer/historial` | Autenticado   | Devuelve una lista con el historial de todos los timers finalizados del usuario ordenados por fecha.           |
-| `POST` | `/timer/start`     | Autenticado   | Inicia un nuevo timer (y detiene el actual si lo hay). Se envía en el body el workspace y detalles opcionales. |
-| `POST` | `/timer/stop`      | Autenticado   | Detiene el timer actualmente activo del usuario registrando su hora de finalización.                           |
 
 ### ⏱️ Timers y Asistencia (Gestión de Tiempos)
 
