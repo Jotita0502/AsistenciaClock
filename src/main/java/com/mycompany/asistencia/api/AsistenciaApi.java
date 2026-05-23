@@ -15,7 +15,6 @@ import db.Conexion;
 import routes.AuthRoutes;
 import routes.UsuarioRoutes;
 import routes.ProyectoRoutes;
-import routes.AsistenciaRoutes;
 import routes.TimerRoutes;
 import routes.WorkspaceRoutes;
 
@@ -90,8 +89,6 @@ public class AsistenciaApi {
         UsuarioRoutes.init();
 
         ProyectoRoutes.init();
-
-        AsistenciaRoutes.init();
 
         WorkspaceRoutes.init();
 
