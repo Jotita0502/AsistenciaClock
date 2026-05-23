@@ -22,244 +22,210 @@ import static spark.Spark.put;
  * @author USUARIO
  */
 public class ProyectoRoutes {
-    
-    public static void init(){
-        
-             get("/proyectos", (req, res) -> {
 
-            Gson gson = new Gson();
+        public static void init() {
 
-            try {
+                get("/proyectos", (req, res) -> {
 
-                ProyectoDAO dao = new ProyectoDAO();
+                        Gson gson = new Gson();
 
-                List<Proyecto> lista = dao.listarProyectos();
+                        try {
 
-                res.type("application/json");
+                                ProyectoDAO dao = new ProyectoDAO();
 
-                return gson.toJson(lista);
+                                List<Proyecto> lista = dao.listarProyectos();
 
-            } catch (Exception e) {
+                                res.type("application/json");
 
-                e.printStackTrace();
+                                return gson.toJson(lista);
 
-                res.status(500);
+                        } catch (Exception e) {
 
-                return gson.toJson(
-                        new ErrorResponse("Error al listar proyectos")
-                );
-            }
-        });
-            post("/proyectos", (req, res) -> {
+                                e.printStackTrace();
 
-            res.type("application/json");
+                                res.status(500);
 
-            Gson gson = new Gson();
-            String rol = req.attribute("rol");
+                                return gson.toJson(
+                                                new ErrorResponse("Error al listar proyectos"));
+                        }
+                });
+                post("/proyectos", (req, res) -> {
 
-            if (!rol.equals("ADMIN")
-                    && !rol.equals("MANAGER")) {
+                        res.type("application/json");
 
-                res.status(403);
+                        Gson gson = new Gson();
+                        String rol = req.attribute("rol");
 
-                return gson.toJson(
-                        new ErrorResponse(
-                                "Acceso denegado"
-                        )
-                );
-            }
-            try {
+                        if (!rol.equals("ADMIN")
+                                        && !rol.equals("MANAGER")) {
 
-                Proyecto proyecto =
-                        gson.fromJson(req.body(), Proyecto.class);
+                                res.status(403);
 
-                // VALIDACIONES
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "Acceso denegado"));
+                        }
+                        try {
 
-                if (proyecto.nombre == null
-                        || proyecto.nombre.trim().isEmpty()) {
+                                Proyecto proyecto = gson.fromJson(req.body(), Proyecto.class);
 
-                    res.status(400);
+                                // VALIDACIONES
 
-                    return gson.toJson(
-                            new ErrorResponse(
-                                    "El nombre del proyecto es obligatorio"
-                            )
-                    );
-                }
+                                if (proyecto.nombre == null
+                                                || proyecto.nombre.trim().isEmpty()) {
 
-                if (proyecto.color == null
-                        || proyecto.color.trim().isEmpty()) {
+                                        res.status(400);
 
-                    res.status(400);
+                                        return gson.toJson(
+                                                        new ErrorResponse(
+                                                                        "El nombre del proyecto es obligatorio"));
+                                }
 
-                    return gson.toJson(
-                            new ErrorResponse(
-                                    "El color es obligatorio"
-                            )
-                    );
-                }
+                                if (proyecto.color == null
+                                                || proyecto.color.trim().isEmpty()) {
 
-                if (proyecto.workspace_id <= 0) {
+                                        res.status(400);
 
-                    res.status(400);
+                                        return gson.toJson(
+                                                        new ErrorResponse(
+                                                                        "El color es obligatorio"));
+                                }
 
-                    return gson.toJson(
-                            new ErrorResponse(
-                                    "workspace_id inválido"
-                            )
-                    );
-                }
+                                if (proyecto.workspace_id <= 0) {
 
-                ProyectoDAO dao = new ProyectoDAO();
+                                        res.status(400);
 
-                boolean creado = dao.crearProyecto(proyecto);
+                                        return gson.toJson(
+                                                        new ErrorResponse(
+                                                                        "workspace_id inválido"));
+                                }
 
-                if (creado) {
+                                ProyectoDAO dao = new ProyectoDAO();
 
-                    return gson.toJson(
-                            new SuccessResponse(
-                                    "Proyecto creado correctamente"
-                            )
-                    );
+                                boolean creado = dao.crearProyecto(proyecto);
 
-                } else {
+                                if (creado) {
 
-                    res.status(500);
+                                        return gson.toJson(
+                                                        new SuccessResponse(
+                                                                        "Proyecto creado correctamente"));
 
-                    return gson.toJson(
-                            new ErrorResponse(
-                                    "No se pudo crear proyecto"
-                            )
-                    );
-                }
+                                } else {
 
-            } catch (Exception e) {
+                                        res.status(500);
 
-                e.printStackTrace();
+                                        return gson.toJson(
+                                                        new ErrorResponse(
+                                                                        "No se pudo crear proyecto"));
+                                }
 
-                res.status(500);
+                        } catch (Exception e) {
 
-                return gson.toJson(
-                        new ErrorResponse(
-                                "Error en servidor"
-                        )
-                );
-            }
-        });
+                                e.printStackTrace();
+
+                                res.status(500);
+
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "Error en servidor"));
+                        }
+                });
                 put("/proyectos/:id", (req, res) -> {
 
-            res.type("application/json");
+                        res.type("application/json");
 
-            int id = Integer.parseInt(req.params(":id"));
+                        int id = Integer.parseInt(req.params(":id"));
 
-            Gson gson = new Gson();
-            String rol = req.attribute("rol");
+                        Gson gson = new Gson();
+                        String rol = req.attribute("rol");
 
-            if (!rol.equals("ADMIN")
-                    && !rol.equals("MANAGER")) {
+                        if (!rol.equals("ADMIN")
+                                        && !rol.equals("MANAGER")) {
 
-                res.status(403);
+                                res.status(403);
 
-                return gson.toJson(
-                        new ErrorResponse(
-                                "Acceso denegado"
-                        )
-                );
-            }
-            Proyecto proyecto =
-                    gson.fromJson(req.body(), Proyecto.class);
-            
-            if (proyecto.nombre == null
-                    || proyecto.nombre.trim().isEmpty()) {
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "Acceso denegado"));
+                        }
+                        Proyecto proyecto = gson.fromJson(req.body(), Proyecto.class);
 
-                res.status(400);
+                        if (proyecto.nombre == null
+                                        || proyecto.nombre.trim().isEmpty()) {
 
-                return gson.toJson(
-                        new ErrorResponse(
-                                "El nombre del proyecto es obligatorio"
-                        )
-                );
-            }
+                                res.status(400);
 
-            if (proyecto.color == null
-                    || proyecto.color.trim().isEmpty()) {
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "El nombre del proyecto es obligatorio"));
+                        }
 
-                res.status(400);
+                        if (proyecto.color == null
+                                        || proyecto.color.trim().isEmpty()) {
 
-                return gson.toJson(
-                        new ErrorResponse(
-                                "El color es obligatorio"
-                        )
-                );
-            }
+                                res.status(400);
 
-            ProyectoDAO dao = new ProyectoDAO();
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "El color es obligatorio"));
+                        }
 
-            boolean actualizado =
-                    dao.actualizarProyecto(id, proyecto);
+                        ProyectoDAO dao = new ProyectoDAO();
 
-            if (actualizado) {
+                        boolean actualizado = dao.actualizarProyecto(id, proyecto);
 
-                return gson.toJson(
-                        new SuccessResponse(
-                                "Proyecto actualizado correctamente"
-                        )
-                );
+                        if (actualizado) {
 
-            } else {
+                                return gson.toJson(
+                                                new SuccessResponse(
+                                                                "Proyecto actualizado correctamente"));
 
-                res.status(500);
+                        } else {
 
-                return gson.toJson(
-                        new ErrorResponse(
-                                "No se pudo actualizar proyecto"
-                        )
-                );
-            }
-        });
-            delete("/proyectos/:id", (req, res) -> {
+                                res.status(500);
 
-            res.type("application/json");
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "No se pudo actualizar proyecto"));
+                        }
+                });
+                delete("/proyectos/:id", (req, res) -> {
 
-            Gson gson = new Gson();
+                        res.type("application/json");
 
-            String rol = req.attribute("rol");
+                        Gson gson = new Gson();
 
-            if (!rol.equals("ADMIN")) {
+                        String rol = req.attribute("rol");
 
-                res.status(403);
+                        if (!rol.equals("ADMIN")) {
 
-                return gson.toJson(
-                        new ErrorResponse(
-                                "Acceso denegado"
-                        )
-                );
-            }
+                                res.status(403);
 
-            int id = Integer.parseInt(req.params(":id"));
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "Acceso denegado"));
+                        }
 
-            ProyectoDAO dao = new ProyectoDAO();
+                        int id = Integer.parseInt(req.params(":id"));
 
-            boolean eliminado = dao.eliminarProyecto(id);
+                        ProyectoDAO dao = new ProyectoDAO();
 
-            if (eliminado) {
+                        boolean eliminado = dao.eliminarProyecto(id);
 
-                return gson.toJson(
-                        new SuccessResponse(
-                                "Proyecto eliminado correctamente"
-                        )
-                );
+                        if (eliminado) {
 
-            } else {
+                                return gson.toJson(
+                                                new SuccessResponse(
+                                                                "Proyecto eliminado correctamente"));
 
-                res.status(500);
+                        } else {
 
-                return gson.toJson(
-                        new ErrorResponse(
-                                "No se pudo eliminar proyecto"
-                        )
-                );
-            }
-        });
-    }
+                                res.status(500);
+
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "No se pudo eliminar proyecto"));
+                        }
+                });
+        }
 }

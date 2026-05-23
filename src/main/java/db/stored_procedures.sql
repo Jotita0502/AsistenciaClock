@@ -117,6 +117,43 @@ BEGIN
     COMMIT;
 END $$
 
+DROP PROCEDURE IF EXISTS sp_listar_workspaces $$
+CREATE PROCEDURE sp_listar_workspaces()
+BEGIN
+    SELECT id, nombre, descripcion, owner_id
+    FROM workspace
+    ORDER BY nombre;
+END $$
+
+-- ACTUALIZAR WORKSPACE
+DROP PROCEDURE IF EXISTS sp_actualizar_workspace $$
+CREATE PROCEDURE sp_actualizar_workspace(
+    IN p_id           INT,
+    IN p_nombre       VARCHAR(100),
+    IN p_descripcion  VARCHAR(255),
+    IN p_owner_id     INT
+)
+BEGIN
+
+    UPDATE workspace
+    SET nombre      = p_nombre,
+        descripcion = p_descripcion,
+        owner_id    = p_owner_id
+    WHERE id = p_id;
+
+END $$
+
+DROP PROCEDURE IF EXISTS sp_eliminar_workspace $$
+CREATE PROCEDURE sp_eliminar_workspace(
+    IN p_id INT
+)
+BEGIN
+
+    DELETE FROM workspace
+    WHERE id = p_id;
+
+END $$
+
 -- Workspaces de un usuario
 DROP PROCEDURE IF EXISTS sp_workspaces_de_usuario $$
 CREATE PROCEDURE sp_workspaces_de_usuario(IN p_usuario_id INT)
