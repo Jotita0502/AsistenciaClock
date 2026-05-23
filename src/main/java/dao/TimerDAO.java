@@ -1,124 +1,127 @@
 package dao;
 
-import java.sql.Connection;
 import java.sql.CallableStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import db.Conexion;
 
-import java.util.ArrayList;
+import model.Timer;
 
-import model.Asistencia;
-
-/**
- *
- * @author USUARIO
- */
 public class TimerDAO {
 
-    public void marcar(int idUsuario, int idProyecto, String tipo) {
+    // INICIAR TIMER
+    public boolean iniciarTimer(Timer a) {
 
         try {
+
             Connection con = Conexion.conectar();
 
-            String sql = "{CALL sp_marcar_asistencia(?, ?, ?)}";
+            String sql = "{CALL sp_iniciar_timer(?, ?, ?, ?, ?, ?, ?)}";
+
             CallableStatement cs = con.prepareCall(sql);
 
-            cs.setInt(1, idUsuario);
-            cs.setInt(2, idProyecto);
-            cs.setString(3, tipo);
+            cs.setInt(1, a.usuario_id);
+
+            cs.setInt(2, a.workspace_id);
+
+            // proyecto_id puede ser null
+            if (a.proyecto_id > 0) {
+
+                cs.setInt(3, a.proyecto_id);
+
+            } else {
+
+                cs.setNull(3, java.sql.Types.INTEGER);
+            }
+
+            // tarea_id puede ser null
+            if (a.tarea_id > 0) {
+
+                cs.setInt(4, a.tarea_id);
+
+            } else {
+
+                cs.setNull(4, java.sql.Types.INTEGER);
+            }
+
+            cs.setString(5, a.descripcion);
+
+            cs.setBoolean(6, a.billable);
+
+            cs.registerOutParameter(
+                    7,
+                    java.sql.Types.INTEGER);
 
             cs.execute();
 
-            System.out.println("Marcación registrada correctamente");
+            int nuevoId = cs.getInt(7);
 
+            cs.close();
             con.close();
 
+            return nuevoId > 0;
+
         } catch (Exception e) {
-            System.out.println("Error en marcación");
+
             e.printStackTrace();
+
+            return false;
         }
     }
 
-    public ResultSet listar() {
-        try {
-            Connection con = Conexion.conectar();
-
-            String sql = "SELECT * FROM registros_tiempo";
-            Statement st = con.createStatement();
-
-            return st.executeQuery(sql);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-
-    }
-
-    public List<Asistencia> listarAsistencias(
-            int usuarioId,
-            String fecha,
-            Integer proyectoId,
-            int limit,
-            int offset) {
-
-        List<Asistencia> lista = new ArrayList<>();
+    // DETENER TIMER
+    public boolean detenerTimer(int usuarioId) {
 
         try {
 
             Connection con = Conexion.conectar();
 
-            String sql = "SELECT * FROM registros_tiempo "
-                    + "WHERE usuario_id = ? ";
+            String sql = "{CALL sp_detener_timer(?)}";
 
-            // FILTRO FECHA
-            if (fecha != null && !fecha.isEmpty()) {
+            CallableStatement cs = con.prepareCall(sql);
 
-                sql += "AND DATE(inicio) = ? ";
-            }
+            cs.setInt(1, usuarioId);
 
-            // FILTRO PROYECTO
-            if (proyectoId != null) {
+            int filas = cs.executeUpdate();
 
-                sql += "AND proyecto_id = ? ";
-            }
+            cs.close();
+            con.close();
 
-            sql += "ORDER BY inicio DESC "
-                    + "LIMIT ? OFFSET ?";
+            return filas > 0;
 
-            PreparedStatement ps = con.prepareStatement(sql);
+        } catch (Exception e) {
 
-            int index = 1;
+            e.printStackTrace();
 
-            ps.setInt(index++, usuarioId);
+            return false;
+        }
+    }
 
-            // FECHA
-            if (fecha != null && !fecha.isEmpty()) {
+    // TIMER ACTIVO
+    public Timer obtenerTimerActivo(int usuarioId) {
 
-                ps.setString(index++, fecha);
-            }
+        try {
 
-            // PROYECTO
-            if (proyectoId != null) {
+            Connection con = Conexion.conectar();
 
-                ps.setInt(index++, proyectoId);
-            }
+            String sql = "{CALL sp_timer_activo(?)}";
 
-            // PAGINACIÓN
-            ps.setInt(index++, limit);
+            CallableStatement cs = con.prepareCall(sql);
 
-            ps.setInt(index++, offset);
+            cs.setInt(1, usuarioId);
 
-            ResultSet rs = ps.executeQuery();
+            ResultSet rs = cs.executeQuery();
 
-            while (rs.next()) {
+            Timer a = null;
 
-                Asistencia a = new Asistencia();
+            if (rs.next()) {
+
+                a = new Timer();
 
                 a.id = rs.getInt("id");
 
@@ -127,6 +130,64 @@ public class TimerDAO {
                 a.workspace_id = rs.getInt("workspace_id");
 
                 a.proyecto_id = rs.getInt("proyecto_id");
+
+                a.tarea_id = rs.getInt("tarea_id");
+
+                a.descripcion = rs.getString("descripcion");
+
+                a.inicio = rs.getString("inicio");
+
+                a.fin = rs.getString("fin");
+
+                a.duracion_seg = rs.getInt("duracion_seg");
+
+                a.billable = rs.getBoolean("billable");
+            }
+
+            rs.close();
+            cs.close();
+            con.close();
+
+            return a;
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            return null;
+        }
+    }
+
+    // HISTORIAL
+    public List<Timer> historialTimers(int usuarioId) {
+
+        List<Timer> lista = new ArrayList<>();
+
+        try {
+
+            Connection con = Conexion.conectar();
+
+            String sql = "{CALL sp_historial_timers(?)}";
+
+            CallableStatement cs = con.prepareCall(sql);
+
+            cs.setInt(1, usuarioId);
+
+            ResultSet rs = cs.executeQuery();
+
+            while (rs.next()) {
+
+                Timer a = new Timer();
+
+                a.id = rs.getInt("id");
+
+                a.usuario_id = rs.getInt("usuario_id");
+
+                a.workspace_id = rs.getInt("workspace_id");
+
+                a.proyecto_id = rs.getInt("proyecto_id");
+
+                a.tarea_id = rs.getInt("tarea_id");
 
                 a.descripcion = rs.getString("descripcion");
 
@@ -142,7 +203,7 @@ public class TimerDAO {
             }
 
             rs.close();
-            ps.close();
+            cs.close();
             con.close();
 
         } catch (Exception e) {
@@ -153,165 +214,24 @@ public class TimerDAO {
         return lista;
     }
 
-    public boolean iniciarTimer(Asistencia a) {
+    // LISTADO SIMPLE
+    public List<Timer> listar() {
+
+        List<Timer> lista = new ArrayList<>();
 
         try {
 
             Connection con = Conexion.conectar();
 
-            String verificar = "SELECT id FROM registros_tiempo "
-                    + "WHERE usuario_id = ? AND fin IS NULL";
-
-            PreparedStatement psVerificar = con.prepareStatement(verificar);
-
-            psVerificar.setInt(1, a.usuario_id);
-
-            ResultSet rs = psVerificar.executeQuery();
-
-            if (rs.next()) {
-
-                rs.close();
-                psVerificar.close();
-                con.close();
-
-                return false;
-            }
-
-            rs.close();
-            psVerificar.close();
-
-            String sql = "INSERT INTO registros_tiempo "
-                    + "(usuario_id, workspace_id, proyecto_id, "
-                    + "descripcion, inicio, billable) "
-                    + "VALUES (?, ?, ?, ?, NOW(), ?)";
+            String sql = "SELECT * FROM registros_tiempo";
 
             PreparedStatement ps = con.prepareStatement(sql);
-
-            ps.setInt(1, a.usuario_id);
-            ps.setInt(2, a.workspace_id);
-            ps.setInt(3, a.proyecto_id);
-            ps.setString(4, a.descripcion);
-            ps.setBoolean(5, a.billable);
-
-            int filas = ps.executeUpdate();
-
-            ps.close();
-            con.close();
-
-            return filas > 0;
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public boolean detenerTimer(int usuarioId) {
-
-        try {
-
-            Connection con = Conexion.conectar();
-
-            String sql = "UPDATE registros_tiempo "
-                    + "SET fin = NOW() "
-                    + "WHERE usuario_id = ? "
-                    + "AND fin IS NULL";
-
-            PreparedStatement ps = con.prepareStatement(sql);
-
-            ps.setInt(1, usuarioId);
-
-            int filas = ps.executeUpdate();
-
-            ps.close();
-            con.close();
-
-            return filas > 0;
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            return false;
-        }
-
-    }
-
-    public Asistencia obtenerTimerActivo(int usuarioId) {
-
-        try {
-
-            Connection con = Conexion.conectar();
-
-            String sql = "SELECT * FROM registros_tiempo "
-                    + "WHERE usuario_id = ? AND fin IS NULL "
-                    + "LIMIT 1";
-
-            PreparedStatement ps = con.prepareStatement(sql);
-
-            ps.setInt(1, usuarioId);
-
-            ResultSet rs = ps.executeQuery();
-
-            Asistencia a = null;
-
-            if (rs.next()) {
-
-                a = new Asistencia();
-
-                a.id = rs.getInt("id");
-
-                a.usuario_id = rs.getInt("usuario_id");
-
-                a.workspace_id = rs.getInt("workspace_id");
-
-                a.proyecto_id = rs.getInt("proyecto_id");
-
-                a.descripcion = rs.getString("descripcion");
-
-                a.inicio = rs.getString("inicio");
-
-                a.fin = rs.getString("fin");
-
-                a.duracion_seg = rs.getInt("duracion_seg");
-
-                a.billable = rs.getBoolean("billable");
-            }
-
-            rs.close();
-            ps.close();
-            con.close();
-
-            return a;
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public List<Asistencia> historialTimers(int usuarioId) {
-
-        List<Asistencia> lista = new ArrayList<>();
-
-        try {
-
-            Connection con = Conexion.conectar();
-
-            String sql = "SELECT * FROM registros_tiempo "
-                    + "WHERE usuario_id = ? "
-                    + "ORDER BY inicio DESC";
-
-            PreparedStatement ps = con.prepareStatement(sql);
-
-            ps.setInt(1, usuarioId);
 
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
 
-                Asistencia a = new Asistencia();
+                Timer a = new Timer();
 
                 a.id = rs.getInt("id");
 
@@ -320,6 +240,8 @@ public class TimerDAO {
                 a.workspace_id = rs.getInt("workspace_id");
 
                 a.proyecto_id = rs.getInt("proyecto_id");
+
+                a.tarea_id = rs.getInt("tarea_id");
 
                 a.descripcion = rs.getString("descripcion");
 

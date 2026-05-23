@@ -1,6 +1,6 @@
 package model;
 
-public class Asistencia {
+public class Timer {
 
     public int id;
 
