@@ -6,19 +6,20 @@ package routes;
 
 import com.google.gson.Gson;
 
-import dao.loginDAO;
+import dao.LoginDAO;
 import model.ErrorResponse;
 import model.LoginRequest;
 import model.LoginResponse;
 import model.Usuario;
 import static spark.Spark.*;
 import utils.JwtUtil;
+
 /**
  *
  * @author USUARIO
  */
 public class AuthRoutes {
-    public static void init(){
+    public static void init() {
         post("/login", (req, res) -> {
 
             try {
@@ -30,7 +31,7 @@ public class AuthRoutes {
                     res.status(400);
                     return gson.toJson(new ErrorResponse("Faltan datos de login"));
                 }
-                Usuario user = loginDAO.login(data.correo, data.password);
+                Usuario user = LoginDAO.login(data.correo, data.password);
 
                 res.type("application/json");
 
@@ -38,10 +39,8 @@ public class AuthRoutes {
                     String token = JwtUtil.generarToken(
                             user.id,
                             user.correo,
-                            user.rol
-                    );
-                    LoginResponse response =
-                            new LoginResponse(token, user);
+                            user.rol);
+                    LoginResponse response = new LoginResponse(token, user);
 
                     return gson.toJson(response);
                 } else {

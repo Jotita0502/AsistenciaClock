@@ -8,16 +8,16 @@ import org.mindrot.jbcrypt.BCrypt;
 import db.Conexion;
 import model.Usuario;
 
-public class loginDAO {
+public class LoginDAO {
 
     public static Usuario login(String correo, String password) {
         Usuario user = null;
 
         try (Connection con = Conexion.conectar();
-             PreparedStatement ps = con.prepareStatement("SELECT * FROM usuarios WHERE email = ?")) {
-            
+                PreparedStatement ps = con.prepareStatement("SELECT * FROM usuarios WHERE email = ?")) {
+
             ps.setString(1, correo);
-            
+
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     String hashBD = rs.getString("password_hash");

@@ -6,7 +6,7 @@ package routes;
 
 import com.google.gson.Gson;
 
-import dao.AsistenciaDAO;
+import dao.TimerDAO;
 
 import java.util.List;
 import model.Asistencia;
@@ -21,117 +21,105 @@ import static spark.Spark.post;
  * @author USUARIO
  */
 public class AsistenciaRoutes {
-    
-    public static void init(){
-        
-        post("/marcar", (req, res) -> {
 
-            try {
-                Gson gson = new Gson();
-                MarcacionRequest data = gson.fromJson(req.body(), MarcacionRequest.class);
+        public static void init() {
 
-                // 🔥 VALIDACIÓN
-                if (data == null || data.id_usuario <= 0 || data.id_proyecto <= 0
-                        || data.tipo == null || data.tipo.isEmpty()) {
+                post("/marcar", (req, res) -> {
 
-                    res.status(400);
-                    return gson.toJson(new ErrorResponse("Datos incompletos para marcar asistencia"));
-                }
+                        try {
+                                Gson gson = new Gson();
+                                MarcacionRequest data = gson.fromJson(req.body(), MarcacionRequest.class);
 
-                System.out.println("Marcando asistencia...");
-                System.out.println("Usuario: " + data.id_usuario);
-                System.out.println("Proyecto: " + data.id_proyecto);
-                System.out.println("Tipo: " + data.tipo);
+                                // 🔥 VALIDACIÓN
+                                if (data == null || data.id_usuario <= 0 || data.id_proyecto <= 0
+                                                || data.tipo == null || data.tipo.isEmpty()) {
 
-                AsistenciaDAO dao = new AsistenciaDAO();
-                dao.marcar(data.id_usuario, data.id_proyecto, data.tipo);
+                                        res.status(400);
+                                        return gson.toJson(
+                                                        new ErrorResponse("Datos incompletos para marcar asistencia"));
+                                }
 
-                res.type("application/json");
-                return gson.toJson(new SuccessResponse("Marcación registrada correctamente"));
+                                System.out.println("Marcando asistencia...");
+                                System.out.println("Usuario: " + data.id_usuario);
+                                System.out.println("Proyecto: " + data.id_proyecto);
+                                System.out.println("Tipo: " + data.tipo);
 
-            } catch (Exception e) {
-                e.printStackTrace();
-                res.status(500);
-                return new Gson().toJson(new ErrorResponse("Error en servidor"));
-            }
-        });
-        get("/asistencias", (req, res) -> {
+                                TimerDAO dao = new TimerDAO();
+                                dao.marcar(data.id_usuario, data.id_proyecto, data.tipo);
 
-            Gson gson = new Gson();
+                                res.type("application/json");
+                                return gson.toJson(new SuccessResponse("Marcación registrada correctamente"));
 
-            try {
+                        } catch (Exception e) {
+                                e.printStackTrace();
+                                res.status(500);
+                                return new Gson().toJson(new ErrorResponse("Error en servidor"));
+                        }
+                });
+                get("/asistencias", (req, res) -> {
 
-                int usuarioId =
-                        req.attribute("usuario_id");
+                        Gson gson = new Gson();
 
-                String fecha =
-                        req.queryParams("fecha");
+                        try {
 
-                String idProyecto =
-                        req.queryParams("id_proyecto");
+                                int usuarioId = req.attribute("usuario_id");
 
-                String limit =
-                        req.queryParams("limit");
+                                String fecha = req.queryParams("fecha");
 
-                String offset =
-                        req.queryParams("offset");
+                                String idProyecto = req.queryParams("id_proyecto");
 
-                int limitInt = 10;
+                                String limit = req.queryParams("limit");
 
-                int offsetInt = 0;
+                                String offset = req.queryParams("offset");
 
-                if (limit != null
-                        && !limit.trim().isEmpty()) {
+                                int limitInt = 10;
 
-                    limitInt =
-                            Integer.parseInt(limit.trim());
-                }
+                                int offsetInt = 0;
 
-                if (offset != null
-                        && !offset.trim().isEmpty()) {
+                                if (limit != null
+                                                && !limit.trim().isEmpty()) {
 
-                    offsetInt =
-                            Integer.parseInt(offset.trim());
-                }
+                                        limitInt = Integer.parseInt(limit.trim());
+                                }
 
-                Integer proyectoIdInt = null;
+                                if (offset != null
+                                                && !offset.trim().isEmpty()) {
 
-                if (idProyecto != null
-                        && !idProyecto.trim().isEmpty()) {
+                                        offsetInt = Integer.parseInt(offset.trim());
+                                }
 
-                    proyectoIdInt =
-                            Integer.parseInt(idProyecto);
-                }
+                                Integer proyectoIdInt = null;
 
-                AsistenciaDAO dao =
-                        new AsistenciaDAO();
+                                if (idProyecto != null
+                                                && !idProyecto.trim().isEmpty()) {
 
-                List<Asistencia> lista =
-                        dao.listarAsistencias(
-                                usuarioId,
-                                fecha,
-                                proyectoIdInt,
-                                limitInt,
-                                offsetInt
-                        );
+                                        proyectoIdInt = Integer.parseInt(idProyecto);
+                                }
 
-                res.type("application/json");
+                                TimerDAO dao = new TimerDAO();
 
-                return gson.toJson(lista);
+                                List<Asistencia> lista = dao.listarAsistencias(
+                                                usuarioId,
+                                                fecha,
+                                                proyectoIdInt,
+                                                limitInt,
+                                                offsetInt);
 
-            } catch (Exception e) {
+                                res.type("application/json");
 
-                e.printStackTrace();
+                                return gson.toJson(lista);
 
-                res.status(500);
+                        } catch (Exception e) {
 
-                return new Gson().toJson(
-                        new ErrorResponse(
-                                "Error al listar"
-                        )
-                );
-            }
-        });
-            
-    }
+                                e.printStackTrace();
+
+                                res.status(500);
+
+                                return new Gson().toJson(
+                                                new ErrorResponse(
+                                                                "Error al listar"));
+                        }
+                });
+
+        }
 }

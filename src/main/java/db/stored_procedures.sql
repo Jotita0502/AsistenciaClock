@@ -242,7 +242,7 @@ CREATE PROCEDURE sp_crear_proyecto(
 BEGIN
     INSERT INTO proyectos (workspace_id, cliente_id, nombre, color, billable)
     VALUES (p_workspace_id, p_cliente_id, p_nombre, p_color, p_billable);
-    SET p_id = LAST_INSERT_ID();
+    /* SET p_id = LAST_INSERT_ID(); */
 END $$
 
 -- Actualizar proyecto
@@ -263,7 +263,6 @@ BEGIN
     WHERE id = p_id;
 END $$
 
--- Eliminar proyecto (baja lógica / archivado)
 DROP PROCEDURE IF EXISTS sp_eliminar_proyecto $$
 CREATE PROCEDURE sp_eliminar_proyecto(
     IN p_id INT

@@ -6,7 +6,7 @@ package routes;
 
 import com.google.gson.Gson;
 
-import dao.AsistenciaDAO;
+import dao.TimerDAO;
 
 import java.util.List;
 import model.Asistencia;
@@ -20,123 +20,103 @@ import static spark.Spark.post;
  * @author USUARIO
  */
 public class TimerRoutes {
-    
-    public static void init(){
-        
-        
-           
-            post("/timer/iniciar", (req, res) -> {
 
-            res.type("application/json");
+        public static void init() {
 
-            Gson gson = new Gson();
+                post("/timer/iniciar", (req, res) -> {
 
-            Asistencia asistencia = gson.fromJson(
-                req.body(),
-                Asistencia.class
-            );
+                        res.type("application/json");
 
-            int usuarioId =
-                    req.attribute("usuario_id");
+                        Gson gson = new Gson();
 
-            asistencia.usuario_id = usuarioId;
+                        Asistencia asistencia = gson.fromJson(
+                                        req.body(),
+                                        Asistencia.class);
 
-            AsistenciaDAO dao = new AsistenciaDAO();
+                        int usuarioId = req.attribute("usuario_id");
 
-            boolean iniciado = dao.iniciarTimer(asistencia);
+                        asistencia.usuario_id = usuarioId;
 
-            if (iniciado) {
+                        TimerDAO dao = new TimerDAO();
 
-                return gson.toJson(
-                        new SuccessResponse(
-                                "Timer iniciado correctamente"
-                        )
-                );
+                        boolean iniciado = dao.iniciarTimer(asistencia);
 
-            } else {
+                        if (iniciado) {
 
-                res.status(400);
+                                return gson.toJson(
+                                                new SuccessResponse(
+                                                                "Timer iniciado correctamente"));
 
-                return gson.toJson(
-                        new ErrorResponse(
-                                "Ya existe un timer activo"
-                        )
-                );
-            }
-        }); 
+                        } else {
+
+                                res.status(400);
+
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "Ya existe un timer activo"));
+                        }
+                });
                 post("/timer/detener", (req, res) -> {
 
-            res.type("application/json");
+                        res.type("application/json");
 
-            Gson gson = new Gson();
+                        Gson gson = new Gson();
 
-            int usuarioId =
-                    req.attribute("usuario_id");
+                        int usuarioId = req.attribute("usuario_id");
 
-            AsistenciaDAO dao = new AsistenciaDAO();
+                        TimerDAO dao = new TimerDAO();
 
-            boolean detenido =
-                    dao.detenerTimer(usuarioId);
+                        boolean detenido = dao.detenerTimer(usuarioId);
 
-            if (detenido) {
+                        if (detenido) {
 
-                return gson.toJson(
-                        new SuccessResponse(
-                                "Timer detenido correctamente"
-                        )
-                );
+                                return gson.toJson(
+                                                new SuccessResponse(
+                                                                "Timer detenido correctamente"));
 
-            } else {
+                        } else {
 
-                res.status(400);
+                                res.status(400);
 
-                return gson.toJson(
-                        new ErrorResponse(
-                                "No existe timer activo"
-                        )
-                );
-            }
-        });
-           get("/timer/historial", (req, res) -> {
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "No existe timer activo"));
+                        }
+                });
+                get("/timer/historial", (req, res) -> {
 
-            res.type("application/json");
+                        res.type("application/json");
 
-            Gson gson = new Gson();
+                        Gson gson = new Gson();
 
-            int usuarioId =
-                    req.attribute("usuario_id");
+                        int usuarioId = req.attribute("usuario_id");
 
-            AsistenciaDAO dao = new AsistenciaDAO();
+                        TimerDAO dao = new TimerDAO();
 
-            List<Asistencia> lista =
-                    dao.historialTimers(usuarioId);
+                        List<Asistencia> lista = dao.historialTimers(usuarioId);
 
-            return gson.toJson(lista);
-        });
-            get("/timer/activo", (req, res) -> {
+                        return gson.toJson(lista);
+                });
+                get("/timer/activo", (req, res) -> {
 
-            res.type("application/json");
+                        res.type("application/json");
 
-            Gson gson = new Gson();
+                        Gson gson = new Gson();
 
-            int usuarioId =
-                    req.attribute("usuario_id");
+                        int usuarioId = req.attribute("usuario_id");
 
-            AsistenciaDAO dao = new AsistenciaDAO();
+                        TimerDAO dao = new TimerDAO();
 
-            Asistencia timer =
-                    dao.obtenerTimerActivo(usuarioId);
+                        Asistencia timer = dao.obtenerTimerActivo(usuarioId);
 
-            if (timer == null) {
+                        if (timer == null) {
 
-                return gson.toJson(
-                        new ErrorResponse(
-                                "No hay timer activo"
-                        )
-                );
-            }
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "No hay timer activo"));
+                        }
 
-            return gson.toJson(timer);
-        });
-    }
+                        return gson.toJson(timer);
+                });
+        }
 }

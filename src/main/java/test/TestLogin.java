@@ -4,17 +4,18 @@
  */
 package test;
 
-import dao.loginDAO;
+import dao.LoginDAO;
+
 /**
  *
  * @author USUARIO
  */
 public class TestLogin {
-     public static void main(String[] args) {
+    public static void main(String[] args) {
 
         String correo = "joaquin@email.com";
         String password = "1234";
 
-        loginDAO.login(correo, password);
+        LoginDAO.login(correo, password);
     }
 }

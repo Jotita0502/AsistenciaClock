@@ -4,15 +4,16 @@
  */
 package test;
 
-import dao.AsistenciaDAO;
+import dao.TimerDAO;
+
 /**
  *
  * @author USUARIO
  */
 public class TestAsistencia {
-    public static void main(String[] args){
-        AsistenciaDAO dao = new AsistenciaDAO();
-        
+    public static void main(String[] args) {
+        TimerDAO dao = new TimerDAO();
+
         dao.marcar(1, 1, "entrada");
         dao.marcar(1, 1, "salida");
     }
