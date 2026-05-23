@@ -345,8 +345,6 @@ END $$
 -- ══════════════════════════════════════════════════════════════
 -- MÓDULO: RASTREADOR (registros_tiempo)
 -- ══════════════════════════════════════════════════════════════
-
--- Iniciar un timer (fin = NULL)
 DROP PROCEDURE IF EXISTS sp_iniciar_timer $$
 CREATE PROCEDURE sp_iniciar_timer(
     IN  p_usuario_id   INT,
@@ -358,64 +356,122 @@ CREATE PROCEDURE sp_iniciar_timer(
     OUT p_id           INT
 )
 BEGIN
-    -- Detener cualquier timer activo del usuario en este workspace
+
     UPDATE registros_tiempo
     SET fin = NOW()
     WHERE usuario_id = p_usuario_id
       AND workspace_id = p_workspace_id
       AND fin IS NULL;
 
-    INSERT INTO registros_tiempo (usuario_id, workspace_id, proyecto_id, tarea_id, descripcion, inicio, billable)
-    VALUES (p_usuario_id, p_workspace_id, p_proyecto_id, p_tarea_id, p_descripcion, NOW(), p_billable);
+    INSERT INTO registros_tiempo (
+        usuario_id,
+        workspace_id,
+        proyecto_id,
+        tarea_id,
+        descripcion,
+        inicio,
+        billable
+    )
+    VALUES (
+        p_usuario_id,
+        p_workspace_id,
+        p_proyecto_id,
+        p_tarea_id,
+        p_descripcion,
+        NOW(),
+        p_billable
+    );
+
     SET p_id = LAST_INSERT_ID();
+
 END $$
 
--- Detener timer activo
 DROP PROCEDURE IF EXISTS sp_detener_timer $$
 CREATE PROCEDURE sp_detener_timer(
-    IN p_registro_id INT,
-    IN p_usuario_id  INT
+    IN p_usuario_id INT
 )
 BEGIN
+
     UPDATE registros_tiempo
     SET fin = NOW()
-    WHERE id = p_registro_id AND usuario_id = p_usuario_id AND fin IS NULL;
+    WHERE usuario_id = p_usuario_id
+      AND fin IS NULL;
+
 END $$
 
--- Obtener timer activo de un usuario
 DROP PROCEDURE IF EXISTS sp_timer_activo $$
 CREATE PROCEDURE sp_timer_activo(
-    IN p_usuario_id   INT,
-    IN p_workspace_id INT
+    IN p_usuario_id INT
 )
 BEGIN
-    SELECT rt.id, rt.descripcion, rt.inicio, rt.billable,
-           p.id AS proyecto_id, p.nombre AS proyecto_nombre, p.color AS proyecto_color,
-           t.id AS tarea_id, t.nombre AS tarea_nombre
+
+    SELECT
+        rt.id,
+        rt.usuario_id,
+        rt.workspace_id,
+        rt.proyecto_id,
+        rt.tarea_id,
+        rt.descripcion,
+        rt.inicio,
+        rt.fin,
+        rt.billable,
+        rt.duracion_seg,
+
+        p.nombre AS proyecto_nombre,
+        p.color  AS proyecto_color,
+
+        t.nombre AS tarea_nombre
+
     FROM registros_tiempo rt
-    LEFT JOIN proyectos p ON rt.proyecto_id = p.id
-    LEFT JOIN tareas    t ON rt.tarea_id    = t.id
-    WHERE rt.usuario_id   = p_usuario_id
-      AND rt.workspace_id = p_workspace_id
+
+    LEFT JOIN proyectos p
+        ON rt.proyecto_id = p.id
+
+    LEFT JOIN tareas t
+        ON rt.tarea_id = t.id
+
+    WHERE rt.usuario_id = p_usuario_id
       AND rt.fin IS NULL
+
     LIMIT 1;
+
 END $$
 
--- Agregar/quitar etiqueta a un registro
-DROP PROCEDURE IF EXISTS sp_toggle_etiqueta_registro $$
-CREATE PROCEDURE sp_toggle_etiqueta_registro(
-    IN p_registro_id INT,
-    IN p_etiqueta_id INT
+DROP PROCEDURE IF EXISTS sp_historial_timers $$
+CREATE PROCEDURE sp_historial_timers(
+    IN p_usuario_id INT
 )
 BEGIN
-    IF EXISTS (SELECT 1 FROM registro_etiquetas
-               WHERE registro_id = p_registro_id AND etiqueta_id = p_etiqueta_id) THEN
-        DELETE FROM registro_etiquetas
-        WHERE registro_id = p_registro_id AND etiqueta_id = p_etiqueta_id;
-    ELSE
-        INSERT INTO registro_etiquetas (registro_id, etiqueta_id)
-        VALUES (p_registro_id, p_etiqueta_id);
-    END IF;
+
+    SELECT
+        rt.id,
+        rt.usuario_id,
+        rt.workspace_id,
+        rt.proyecto_id,
+        rt.tarea_id,
+        rt.descripcion,
+        rt.inicio,
+        rt.fin,
+        rt.billable,
+        rt.duracion_seg,
+
+        p.nombre AS proyecto_nombre,
+        p.color  AS proyecto_color,
+
+        t.nombre AS tarea_nombre
+
+    FROM registros_tiempo rt
+
+    LEFT JOIN proyectos p
+        ON rt.proyecto_id = p.id
+
+    LEFT JOIN tareas t
+        ON rt.tarea_id = t.id
+
+    WHERE rt.usuario_id = p_usuario_id
+
+    ORDER BY rt.inicio DESC;
+
 END $$
 
 -- ══════════════════════════════════════════════════════════════
