@@ -344,6 +344,14 @@ BEGIN
 
 END $$
 
+-- OBTENER TODAS LAS TAREAS
+DROP PROCEDURE IF EXISTS sp_obtener_tareas_totales $$
+CREATE PROCEDURE sp_obtener_tareas_totales()
+BEGIN
+	SELECT id, proyecto_id, nombre, archivado, created_at
+    FROM tareas;
+END $$
+
 
 -- OBTENER POR ID
 DROP PROCEDURE IF EXISTS sp_obtener_tarea $$
@@ -351,7 +359,6 @@ CREATE PROCEDURE sp_obtener_tarea(
     IN p_id INT
 )
 BEGIN
-
     SELECT
         id,
         proyecto_id,
@@ -360,11 +367,8 @@ BEGIN
         created_at
 
     FROM tareas
-
     WHERE id = p_id
-
     LIMIT 1;
-
 END $$
 
 
