@@ -9,13 +9,13 @@ import java.util.ArrayList;
 import org.mindrot.jbcrypt.BCrypt;
 
 import db.Conexion;
-import model.Usuario;
+import model.User;
 
-public class UsuarioDAO {
+public class UserDAO {
 
-    public List<Usuario> listarUsuarios() {
+    public List<User> listarUsuarios() {
 
-        List<Usuario> lista = new ArrayList<>();
+        List<User> lista = new ArrayList<>();
 
         try {
 
@@ -29,7 +29,7 @@ public class UsuarioDAO {
 
             while (rs.next()) {
 
-                Usuario u = new Usuario();
+                User u = new User();
 
                 u.id = rs.getInt("id");
                 u.nombre = rs.getString("nombre");
@@ -51,7 +51,7 @@ public class UsuarioDAO {
         return lista;
     }
 
-    public boolean crearUsuario(Usuario u) {
+    public boolean crearUsuario(User u) {
 
         try {
 
@@ -89,7 +89,7 @@ public class UsuarioDAO {
         }
     }
 
-    public boolean actualizarUsuario(int id, Usuario usuario) {
+    public boolean actualizarUsuario(int id, User usuario) {
 
         try {
 

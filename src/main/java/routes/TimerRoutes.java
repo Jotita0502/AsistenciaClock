@@ -7,8 +7,8 @@ import dao.TimerDAO;
 import java.util.List;
 
 import model.Timer;
-import model.ErrorResponse;
-import model.SuccessResponse;
+import model.response.ErrorResponse;
+import model.response.SuccessResponse;
 
 import static spark.Spark.get;
 import static spark.Spark.post;
