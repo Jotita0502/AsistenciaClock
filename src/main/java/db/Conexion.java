@@ -12,11 +12,12 @@ public class Conexion {
 
         try {
             Dotenv dotenv = Dotenv.load();
-            
-            String HOST = dotenv.get("DB_HOST"); 
+
+            String HOST = dotenv.get("DB_HOST");
             String PORT = dotenv.get("DB_PORT");
             String DATABASE = dotenv.get("DB_NAME");
-            String URL = "jdbc:mysql://" + HOST + ":" + PORT + "/" + DATABASE + "?useSSL=true&sslMode=REQUIRED&serverTimezone=UTC";
+            String URL = "jdbc:mysql://" + HOST + ":" + PORT + "/" + DATABASE
+                    + "?useSSL=true&sslMode=REQUIRED&serverTimezone=UTC";
             String USER = dotenv.get("DB_USER");
             String PASSWORD = dotenv.get("DB_PASSWORD");
 

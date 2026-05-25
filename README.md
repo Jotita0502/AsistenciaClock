@@ -68,7 +68,7 @@ El sistema maneja tres tipos de roles que controlan el acceso a los diferentes e
 
 ## 📡 Endpoints
 
-A continuación se detallan los principales recursos expuestos por la API. Todas las respuestas se emiten en formato `application/json`.
+A continuación se detallan los principales recursos expuestos por la API. Todas las peticiones a rutas protegidas requieren el envío de **Headers Bearer Token** (`Authorization: Bearer <token>`). Para la creación y modificación de recursos se utilizan **Bodies JSON**, y todas las respuestas se emiten en formato `application/json`.
 
 ### 🛠️ Pruebas y Auth (Rutas Públicas)
 
@@ -104,6 +104,34 @@ A continuación se detallan los principales recursos expuestos por la API. Todas
 | `POST`   | `/proyectos`     | **ADMIN**, **MANAGER** | Crea un proyecto asociado a un workspace. Requiere nombre y color. |
 | `PUT`    | `/proyectos/:id` | **ADMIN**, **MANAGER** | Actualiza las propiedades de un proyecto.                          |
 | `DELETE` | `/proyectos/:id` | **ADMIN**              | Archiva o elimina lógicamente un proyecto por su ID.               |
+
+### 📋 Tareas (`/tareas`)
+
+Implementa un **CRUD completo de Tasks**.
+
+| Método   | Endpoint                | Rol Requerido | Descripción                                                           |
+| -------- | ----------------------- | ------------- | --------------------------------------------------------------------- |
+| `GET`    | `/tareas`               | Autenticado   | Lista todas las tareas del sistema.                                   |
+| `GET`    | `/proyectos/:id/tareas` | Autenticado   | Lista las tareas asociadas a un proyecto específico.                  |
+| `GET`    | `/tareas/:id`           | Autenticado   | Obtiene el detalle de una tarea por su ID.                            |
+| `POST`   | `/tareas`               | Autenticado   | Crea una nueva tarea asociada a un proyecto. Requerido body JSON.     |
+| `PUT`    | `/tareas/:id`           | Autenticado   | Actualiza los datos de una tarea (nombre, etc.). Requerido body JSON. |
+| `DELETE` | `/tareas/:id`           | Autenticado   | Realiza una baja lógica (archiva) de la tarea.                        |
+
+### 🏷️ Etiquetas (`/tags` y Relaciones)
+
+Implementa un **CRUD completo de Tags** y permite la **Relación registro-etiqueta**.
+
+| Método   | Endpoint                             | Rol Requerido | Descripción                                                                      |
+| -------- | ------------------------------------ | ------------- | -------------------------------------------------------------------------------- |
+| `GET`    | `/workspaces/:id/tags`               | Autenticado   | Lista las etiquetas pertenecientes a un workspace.                               |
+| `GET`    | `/tags/:id`                          | Autenticado   | Obtiene el detalle de una etiqueta por su ID.                                    |
+| `POST`   | `/tags`                              | Autenticado   | Crea una nueva etiqueta. Requiere body JSON (`workspace_id`, `nombre`, `color`). |
+| `PUT`    | `/tags/:id`                          | Autenticado   | Actualiza el nombre o color de una etiqueta existente.                           |
+| `DELETE` | `/tags/:id`                          | Autenticado   | Elimina permanentemente una etiqueta.                                            |
+| `POST`   | `/registros/:registroId/tags/:tagId` | Autenticado   | Asocia una etiqueta a un registro de tiempo (**Relación registro-etiqueta**).    |
+| `DELETE` | `/registros/:registroId/tags/:tagId` | Autenticado   | Elimina la asociación de una etiqueta a un registro de tiempo.                   |
+| `GET`    | `/registros/:id/tags`                | Autenticado   | Lista las etiquetas asociadas a un registro de tiempo específico.                |
 
 ### ⏱️ Timers y Asistencia (Gestión de Tiempos)
 
