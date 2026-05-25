@@ -30,7 +30,7 @@ public class TimerDAO {
             cs.setInt(2, a.workspace_id);
 
             // proyecto_id puede ser null
-            if (a.proyecto_id > 0) {
+            if (a.proyecto_id != null && a.proyecto_id > 0) {
 
                 cs.setInt(3, a.proyecto_id);
 
@@ -40,7 +40,7 @@ public class TimerDAO {
             }
 
             // tarea_id puede ser null
-            if (a.tarea_id > 0) {
+            if (a.tarea_id != null && a.tarea_id > 0) {
 
                 cs.setInt(4, a.tarea_id);
 
@@ -129,10 +129,27 @@ public class TimerDAO {
 
                 a.workspace_id = rs.getInt("workspace_id");
 
-                a.proyecto_id = rs.getInt("proyecto_id");
+                int proyecto = rs.getInt("proyecto_id");
 
-                a.tarea_id = rs.getInt("tarea_id");
+                if (rs.wasNull()) {
 
+                    a.proyecto_id = null;
+
+                } else {
+
+                    a.proyecto_id = proyecto;
+                }
+
+                int tarea = rs.getInt("tarea_id");
+
+                if (rs.wasNull()) {
+
+                    a.tarea_id = null;
+
+                } else {
+
+                    a.tarea_id = tarea;
+                }
                 a.descripcion = rs.getString("descripcion");
 
                 a.inicio = rs.getString("inicio");
@@ -185,9 +202,27 @@ public class TimerDAO {
 
                 a.workspace_id = rs.getInt("workspace_id");
 
-                a.proyecto_id = rs.getInt("proyecto_id");
+                int proyecto = rs.getInt("proyecto_id");
 
-                a.tarea_id = rs.getInt("tarea_id");
+                if (rs.wasNull()) {
+
+                    a.proyecto_id = null;
+
+                } else {
+
+                    a.proyecto_id = proyecto;
+                }
+
+                int tarea = rs.getInt("tarea_id");
+
+                if (rs.wasNull()) {
+
+                    a.tarea_id = null;
+
+                } else {
+
+                    a.tarea_id = tarea;
+                }
 
                 a.descripcion = rs.getString("descripcion");
 
@@ -239,9 +274,27 @@ public class TimerDAO {
 
                 a.workspace_id = rs.getInt("workspace_id");
 
-                a.proyecto_id = rs.getInt("proyecto_id");
+                int proyecto = rs.getInt("proyecto_id");
 
-                a.tarea_id = rs.getInt("tarea_id");
+                if (rs.wasNull()) {
+
+                    a.proyecto_id = null;
+
+                } else {
+
+                    a.proyecto_id = proyecto;
+                }
+
+                int tarea = rs.getInt("tarea_id");
+
+                if (rs.wasNull()) {
+
+                    a.tarea_id = null;
+
+                } else {
+
+                    a.tarea_id = tarea;
+                }
 
                 a.descripcion = rs.getString("descripcion");
 
