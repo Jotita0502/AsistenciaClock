@@ -80,12 +80,10 @@ public class ProyectoDAO {
 
             cs.execute();
 
-            int nuevoId = cs.getInt(6);
-
             cs.close();
             con.close();
 
-            return nuevoId > 0;
+            return true;
 
         } catch (Exception e) {
 
