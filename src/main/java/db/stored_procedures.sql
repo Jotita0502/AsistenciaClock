@@ -294,6 +294,7 @@ END $$
 -- MÓDULO: TAREAS
 -- ══════════════════════════════════════════════════════════════
 
+-- CREAR
 DROP PROCEDURE IF EXISTS sp_crear_tarea $$
 CREATE PROCEDURE sp_crear_tarea(
     IN  p_proyecto_id INT,
@@ -301,21 +302,125 @@ CREATE PROCEDURE sp_crear_tarea(
     OUT p_id          INT
 )
 BEGIN
-    INSERT INTO tareas (proyecto_id, nombre) VALUES (p_proyecto_id, p_nombre);
+
+    INSERT INTO tareas (
+        proyecto_id,
+        nombre
+    )
+    VALUES (
+        p_proyecto_id,
+        p_nombre
+    );
+
     SET p_id = LAST_INSERT_ID();
+
 END $$
 
+
+-- LISTAR POR PROYECTO
 DROP PROCEDURE IF EXISTS sp_tareas_por_proyecto $$
 CREATE PROCEDURE sp_tareas_por_proyecto(
     IN p_proyecto_id INT,
     IN p_incluir_archivadas TINYINT(1)
 )
 BEGIN
-    SELECT id, nombre, archivado
+
+    SELECT
+        id,
+        proyecto_id,
+        nombre,
+        archivado,
+        created_at
+
     FROM tareas
+
     WHERE proyecto_id = p_proyecto_id
-      AND (p_incluir_archivadas = 1 OR archivado = 0)
+      AND (
+            p_incluir_archivadas = 1
+            OR archivado = 0
+      )
+
     ORDER BY nombre;
+
+END $$
+
+-- OBTENER TODAS LAS TAREAS
+DROP PROCEDURE IF EXISTS sp_obtener_tareas_totales $$
+CREATE PROCEDURE sp_obtener_tareas_totales()
+BEGIN
+	SELECT id, proyecto_id, nombre, archivado, created_at
+    FROM tareas;
+END $$
+
+
+-- OBTENER POR ID
+DROP PROCEDURE IF EXISTS sp_obtener_tarea $$
+CREATE PROCEDURE sp_obtener_tarea(
+    IN p_id INT
+)
+BEGIN
+    SELECT
+        id,
+        proyecto_id,
+        nombre,
+        archivado,
+        created_at
+
+    FROM tareas
+    WHERE id = p_id
+    LIMIT 1;
+END $$
+
+
+-- ACTUALIZAR
+DROP PROCEDURE IF EXISTS sp_actualizar_tarea $$
+CREATE PROCEDURE sp_actualizar_tarea(
+    IN p_id           INT,
+    IN p_proyecto_id  INT,
+    IN p_nombre       VARCHAR(150)
+)
+BEGIN
+
+    UPDATE tareas
+
+    SET proyecto_id = p_proyecto_id,
+        nombre      = p_nombre
+
+    WHERE id = p_id;
+
+END $$
+
+
+-- ELIMINAR (BAJA LÓGICA)
+DROP PROCEDURE IF EXISTS sp_eliminar_tarea $$
+CREATE PROCEDURE sp_eliminar_tarea(
+    IN p_id INT
+)
+BEGIN
+
+    UPDATE tareas
+
+    SET archivado = 1
+
+    WHERE id = p_id;
+
+END $$
+
+
+-- ARCHIVAR / DESARCHIVAR
+DROP PROCEDURE IF EXISTS sp_archivar_tarea $$
+CREATE PROCEDURE sp_archivar_tarea(
+    IN p_id         INT,
+    IN p_archivado  TINYINT(1)
+)
+BEGIN
+
+    UPDATE tareas
+
+    SET archivado = p_archivado
+
+    WHERE id = p_id;
+
 END $$
 
 -- ══════════════════════════════════════════════════════════════

@@ -9,13 +9,13 @@ import db.Conexion;
 
 import java.util.ArrayList;
 
-import model.Proyecto;
+import model.Project;
 
-public class ProyectoDAO {
+public class ProjectDAO {
 
-    public List<Proyecto> listarProyectos() {
+    public List<Project> listarProyectos() {
 
-        List<Proyecto> lista = new ArrayList<>();
+        List<Project> lista = new ArrayList<>();
 
         try {
 
@@ -29,7 +29,7 @@ public class ProyectoDAO {
 
             while (rs.next()) {
 
-                Proyecto p = new Proyecto();
+                Project p = new Project();
 
                 p.id = rs.getInt("id");
                 p.workspace_id = rs.getInt("workspace_id");
@@ -53,7 +53,7 @@ public class ProyectoDAO {
         return lista;
     }
 
-    public boolean crearProyecto(Proyecto proyecto) {
+    public boolean crearProyecto(Project proyecto) {
 
         try {
 
@@ -92,7 +92,7 @@ public class ProyectoDAO {
         }
     }
 
-    public boolean actualizarProyecto(int id, Proyecto proyecto) {
+    public boolean actualizarProyecto(int id, Project proyecto) {
         try {
 
             Connection con = Conexion.conectar();

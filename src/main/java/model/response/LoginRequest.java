@@ -1,4 +1,4 @@
-package model;
+package model.response;
 
 public class LoginRequest {
     public String correo;

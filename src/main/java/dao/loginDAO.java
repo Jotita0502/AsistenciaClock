@@ -6,12 +6,12 @@ import java.sql.ResultSet;
 import org.mindrot.jbcrypt.BCrypt;
 
 import db.Conexion;
-import model.Usuario;
+import model.User;
 
 public class LoginDAO {
 
-    public static Usuario login(String correo, String password) {
-        Usuario user = null;
+    public static User login(String correo, String password) {
+        User user = null;
 
         try (Connection con = Conexion.conectar();
                 PreparedStatement ps = con.prepareStatement("SELECT * FROM usuarios WHERE email = ?")) {
@@ -23,7 +23,7 @@ public class LoginDAO {
                     String hashBD = rs.getString("password_hash");
 
                     if (BCrypt.checkpw(password.trim(), hashBD)) {
-                        user = new Usuario();
+                        user = new User();
                         user.id = rs.getInt("id");
                         user.nombre = rs.getString("nombre");
                         user.correo = rs.getString("email");

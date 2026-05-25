@@ -1,6 +1,6 @@
 package model;
 
-public class Proyecto {
+public class Project {
 
     public int id;
 

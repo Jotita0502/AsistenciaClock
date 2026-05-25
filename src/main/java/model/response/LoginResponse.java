@@ -1,11 +1,13 @@
-package model;
+package model.response;
+
+import model.User;
 
 public class LoginResponse {
 
     public String token;
-    public Usuario usuario;
+    public User usuario;
 
-    public LoginResponse(String token, Usuario usuario) {
+    public LoginResponse(String token, User usuario) {
         this.token = token;
         this.usuario = usuario;
     }

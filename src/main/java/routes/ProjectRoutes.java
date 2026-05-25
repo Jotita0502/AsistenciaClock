@@ -6,12 +6,14 @@ package routes;
 
 import com.google.gson.Gson;
 
-import dao.ProyectoDAO;
+import dao.ProjectDAO;
 
 import java.util.List;
-import model.ErrorResponse;
-import model.Proyecto;
-import model.SuccessResponse;
+
+import model.Project;
+import model.response.ErrorResponse;
+import model.response.SuccessResponse;
+
 import static spark.Spark.delete;
 import static spark.Spark.get;
 import static spark.Spark.post;
@@ -21,7 +23,7 @@ import static spark.Spark.put;
  *
  * @author USUARIO
  */
-public class ProyectoRoutes {
+public class ProjectRoutes {
 
         public static void init() {
 
@@ -31,9 +33,9 @@ public class ProyectoRoutes {
 
                         try {
 
-                                ProyectoDAO dao = new ProyectoDAO();
+                                ProjectDAO dao = new ProjectDAO();
 
-                                List<Proyecto> lista = dao.listarProyectos();
+                                List<Project> lista = dao.listarProyectos();
 
                                 res.type("application/json");
 
@@ -67,7 +69,7 @@ public class ProyectoRoutes {
                         }
                         try {
 
-                                Proyecto proyecto = gson.fromJson(req.body(), Proyecto.class);
+                                Project proyecto = gson.fromJson(req.body(), Project.class);
 
                                 // VALIDACIONES
 
@@ -100,7 +102,7 @@ public class ProyectoRoutes {
                                                                         "workspace_id inválido"));
                                 }
 
-                                ProyectoDAO dao = new ProyectoDAO();
+                                ProjectDAO dao = new ProjectDAO();
 
                                 boolean creado = dao.crearProyecto(proyecto);
 
@@ -148,7 +150,7 @@ public class ProyectoRoutes {
                                                 new ErrorResponse(
                                                                 "Acceso denegado"));
                         }
-                        Proyecto proyecto = gson.fromJson(req.body(), Proyecto.class);
+                        Project proyecto = gson.fromJson(req.body(), Project.class);
 
                         if (proyecto.nombre == null
                                         || proyecto.nombre.trim().isEmpty()) {
@@ -170,7 +172,7 @@ public class ProyectoRoutes {
                                                                 "El color es obligatorio"));
                         }
 
-                        ProyectoDAO dao = new ProyectoDAO();
+                        ProjectDAO dao = new ProjectDAO();
 
                         boolean actualizado = dao.actualizarProyecto(id, proyecto);
 
@@ -208,7 +210,7 @@ public class ProyectoRoutes {
 
                         int id = Integer.parseInt(req.params(":id"));
 
-                        ProyectoDAO dao = new ProyectoDAO();
+                        ProjectDAO dao = new ProjectDAO();
 
                         boolean eliminado = dao.eliminarProyecto(id);
 

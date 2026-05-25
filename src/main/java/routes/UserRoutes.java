@@ -6,12 +6,14 @@ package routes;
 
 import com.google.gson.Gson;
 
-import dao.UsuarioDAO;
+import dao.UserDAO;
 
 import java.util.List;
-import model.ErrorResponse;
-import model.SuccessResponse;
-import model.Usuario;
+
+import model.User;
+import model.response.ErrorResponse;
+import model.response.SuccessResponse;
+
 import static spark.Spark.delete;
 import static spark.Spark.get;
 import static spark.Spark.post;
@@ -21,7 +23,7 @@ import static spark.Spark.put;
  *
  * @author USUARIO
  */
-public class UsuarioRoutes {
+public class UserRoutes {
 
         public static void init() {
 
@@ -31,9 +33,9 @@ public class UsuarioRoutes {
 
                         try {
 
-                                UsuarioDAO dao = new UsuarioDAO();
+                                UserDAO dao = new UserDAO();
 
-                                List<Usuario> lista = dao.listarUsuarios();
+                                List<User> lista = dao.listarUsuarios();
 
                                 res.type("application/json");
 
@@ -64,7 +66,7 @@ public class UsuarioRoutes {
                         }
                         try {
 
-                                Usuario u = gson.fromJson(req.body(), Usuario.class);
+                                User u = gson.fromJson(req.body(), User.class);
 
                                 // VALIDAR NOMBRE
 
@@ -126,7 +128,7 @@ public class UsuarioRoutes {
                                                                         "Rol inválido"));
                                 }
 
-                                UsuarioDAO dao = new UsuarioDAO();
+                                UserDAO dao = new UserDAO();
 
                                 boolean creado = dao.crearUsuario(u);
 
@@ -174,7 +176,7 @@ public class UsuarioRoutes {
 
                         int id = Integer.parseInt(req.params(":id"));
 
-                        Usuario usuario = gson.fromJson(req.body(), Usuario.class);
+                        User usuario = gson.fromJson(req.body(), User.class);
 
                         // VALIDACIONES
 
@@ -226,7 +228,7 @@ public class UsuarioRoutes {
                                                                 "Rol inválido"));
                         }
 
-                        UsuarioDAO dao = new UsuarioDAO();
+                        UserDAO dao = new UserDAO();
 
                         boolean actualizado = dao.actualizarUsuario(id, usuario);
 
@@ -265,7 +267,7 @@ public class UsuarioRoutes {
 
                         int id = Integer.parseInt(req.params(":id"));
 
-                        UsuarioDAO dao = new UsuarioDAO();
+                        UserDAO dao = new UserDAO();
 
                         boolean eliminado = dao.eliminarUsuario(id);
 

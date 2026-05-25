@@ -13,10 +13,11 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 
 import db.Conexion;
 import routes.AuthRoutes;
-import routes.UsuarioRoutes;
-import routes.ProyectoRoutes;
+import routes.UserRoutes;
+import routes.ProjectRoutes;
 import routes.TimerRoutes;
 import routes.WorkspaceRoutes;
+import routes.TaskRoutes;
 
 public class AsistenciaApi {
 
@@ -86,11 +87,13 @@ public class AsistenciaApi {
 
         AuthRoutes.init();
 
-        UsuarioRoutes.init();
+        UserRoutes.init();
 
-        ProyectoRoutes.init();
+        ProjectRoutes.init();
 
         WorkspaceRoutes.init();
+
+        TaskRoutes.init();
 
         TimerRoutes.init();
     }
