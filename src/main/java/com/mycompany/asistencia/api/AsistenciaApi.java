@@ -18,6 +18,7 @@ import routes.ProjectRoutes;
 import routes.TimerRoutes;
 import routes.WorkspaceRoutes;
 import routes.TaskRoutes;
+import routes.TagRoutes;
 
 public class AsistenciaApi {
 
@@ -96,5 +97,7 @@ public class AsistenciaApi {
         TaskRoutes.init();
 
         TimerRoutes.init();
+
+        TagRoutes.init();
     }
 }

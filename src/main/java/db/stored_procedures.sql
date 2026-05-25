@@ -427,6 +427,11 @@ END $$
 -- MÓDULO: ETIQUETAS
 -- ══════════════════════════════════════════════════════════════
 
+-- ══════════════════════════════════════════════════════════════
+-- MÓDULO: ETIQUETAS
+-- ══════════════════════════════════════════════════════════════
+
+-- CREAR ETIQUETA
 DROP PROCEDURE IF EXISTS sp_crear_etiqueta $$
 CREATE PROCEDURE sp_crear_etiqueta(
     IN  p_workspace_id INT,
@@ -435,18 +440,198 @@ CREATE PROCEDURE sp_crear_etiqueta(
     OUT p_id           INT
 )
 BEGIN
-    INSERT INTO etiquetas (workspace_id, nombre, color)
-    VALUES (p_workspace_id, p_nombre, p_color);
+
+    INSERT INTO etiquetas (
+        workspace_id,
+        nombre,
+        color
+    )
+    VALUES (
+        p_workspace_id,
+        p_nombre,
+        p_color
+    );
+
     SET p_id = LAST_INSERT_ID();
+
 END $$
 
+
+-- LISTAR ETIQUETAS
 DROP PROCEDURE IF EXISTS sp_listar_etiquetas $$
-CREATE PROCEDURE sp_listar_etiquetas(IN p_workspace_id INT)
+CREATE PROCEDURE sp_listar_etiquetas(
+    IN p_workspace_id INT
+)
 BEGIN
-    SELECT id, nombre, color FROM etiquetas
-    WHERE workspace_id = p_workspace_id ORDER BY nombre;
+
+    SELECT
+        id,
+        workspace_id,
+        nombre,
+        color
+
+    FROM etiquetas
+
+    WHERE workspace_id = p_workspace_id
+
+    ORDER BY nombre;
+
 END $$
 
+
+-- OBTENER ETIQUETA
+DROP PROCEDURE IF EXISTS sp_obtener_etiqueta $$
+CREATE PROCEDURE sp_obtener_etiqueta(
+    IN p_id INT
+)
+BEGIN
+
+    SELECT
+        id,
+        workspace_id,
+        nombre,
+        color
+
+    FROM etiquetas
+
+    WHERE id = p_id
+
+    LIMIT 1;
+
+END $$
+
+
+-- ACTUALIZAR ETIQUETA
+DROP PROCEDURE IF EXISTS sp_actualizar_etiqueta $$
+CREATE PROCEDURE sp_actualizar_etiqueta(
+    IN p_id           INT,
+    IN p_nombre       VARCHAR(80),
+    IN p_color        CHAR(7)
+)
+BEGIN
+
+    UPDATE etiquetas
+
+    SET nombre = p_nombre,
+        color  = p_color
+
+    WHERE id = p_id;
+
+END $$
+
+
+-- ELIMINAR ETIQUETA
+DROP PROCEDURE IF EXISTS sp_eliminar_etiqueta $$
+CREATE PROCEDURE sp_eliminar_etiqueta(
+    IN p_id INT
+)
+BEGIN
+
+    DELETE FROM etiquetas
+
+    WHERE id = p_id;
+
+END $$
+
+
+-- ASIGNAR ETIQUETA A REGISTRO
+DROP PROCEDURE IF EXISTS sp_agregar_etiqueta_registro $$
+
+CREATE PROCEDURE sp_agregar_etiqueta_registro(
+    IN p_registro_id INT,
+    IN p_etiqueta_id INT
+)
+BEGIN
+
+    -- VALIDAR REGISTRO
+    IF NOT EXISTS (
+        SELECT 1
+        FROM registros_tiempo
+        WHERE id = p_registro_id
+    ) THEN
+
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'El registro no existe';
+
+    END IF;
+
+    -- VALIDAR ETIQUETA
+    IF NOT EXISTS (
+        SELECT 1
+        FROM etiquetas
+        WHERE id = p_etiqueta_id
+    ) THEN
+
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'La etiqueta no existe';
+
+    END IF;
+
+    -- VALIDAR DUPLICADO
+    IF EXISTS (
+        SELECT 1
+        FROM registro_etiquetas
+        WHERE registro_id = p_registro_id
+          AND etiqueta_id = p_etiqueta_id
+    ) THEN
+
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'La etiqueta ya está asignada';
+
+    END IF;
+
+    -- INSERTAR
+    INSERT INTO registro_etiquetas (
+        registro_id,
+        etiqueta_id
+    )
+    VALUES (
+        p_registro_id,
+        p_etiqueta_id
+    );
+
+END $$
+
+
+-- QUITAR ETIQUETA DE REGISTRO
+DROP PROCEDURE IF EXISTS sp_quitar_etiqueta_registro $$
+CREATE PROCEDURE sp_quitar_etiqueta_registro(
+    IN p_registro_id INT,
+    IN p_etiqueta_id INT
+)
+BEGIN
+
+    DELETE FROM registro_etiquetas
+
+    WHERE registro_id = p_registro_id
+      AND etiqueta_id = p_etiqueta_id;
+
+END $$
+
+
+-- LISTAR ETIQUETAS DE UN REGISTRO
+DROP PROCEDURE IF EXISTS sp_etiquetas_por_registro $$
+CREATE PROCEDURE sp_etiquetas_por_registro(
+    IN p_registro_id INT
+)
+BEGIN
+
+    SELECT
+        e.id,
+        e.workspace_id,
+        e.nombre,
+        e.color
+
+    FROM registro_etiquetas re
+
+    INNER JOIN etiquetas e
+        ON re.etiqueta_id = e.id
+
+    WHERE re.registro_id = p_registro_id
+
+    ORDER BY e.nombre;
+
+END $$
 -- ══════════════════════════════════════════════════════════════
 -- MÓDULO: RASTREADOR (registros_tiempo)
 -- ══════════════════════════════════════════════════════════════
