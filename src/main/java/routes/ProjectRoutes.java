@@ -67,6 +67,14 @@ public class ProjectRoutes {
                                                 new ErrorResponse(
                                                                 "Acceso denegado"));
                         }
+                        if (req.body() == null || req.body().trim().isEmpty()) {
+
+                                res.status(400);
+
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "El body no puede estar vacío"));
+                        }
                         try {
 
                                 Project proyecto = gson.fromJson(req.body(), Project.class);
@@ -109,6 +117,14 @@ public class ProjectRoutes {
                                         return gson.toJson(
                                                         new ErrorResponse(
                                                                         "workspace_id inválido"));
+                                }
+                                if (proyecto.billable == null) {
+
+                                        res.status(400);
+
+                                        return gson.toJson(
+                                                        new ErrorResponse(
+                                                                        "El campo billable es obligatorio"));
                                 }
 
                                 ProjectDAO dao = new ProjectDAO();
@@ -169,6 +185,15 @@ public class ProjectRoutes {
                                                 new ErrorResponse(
                                                                 "Acceso denegado"));
                         }
+                        if (req.body() == null || req.body().trim().isEmpty()) {
+
+                            res.status(400);
+
+                            return gson.toJson(
+                                    new ErrorResponse(
+                                            "El body no puede estar vacío"));
+                        }
+                        
                         Project proyecto = gson.fromJson(req.body(), Project.class);
 
                         if (proyecto.nombre == null
@@ -199,6 +224,15 @@ public class ProjectRoutes {
                                                 new ErrorResponse(
                                                                 "El color debe tener formato hexadecimal. Ejemplo: #FF5733"));
                         }
+                        if (proyecto.billable == null) {
+
+                                res.status(400);
+
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "El campo billable es obligatorio"));
+                        }
+                        
 
                         ProjectDAO dao = new ProjectDAO();
 
@@ -236,7 +270,20 @@ public class ProjectRoutes {
                                                                 "Acceso denegado"));
                         }
 
-                        int id = Integer.parseInt(req.params(":id"));
+                        int id;
+
+                        try {
+
+                                id = Integer.parseInt(req.params(":id"));
+
+                        } catch (NumberFormatException e) {
+
+                                res.status(400);
+
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "El ID debe ser numérico"));
+                        }
 
                         if (id <= 0) {
 

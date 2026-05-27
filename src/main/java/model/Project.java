@@ -10,7 +10,7 @@ public class Project {
 
     public String color;
 
-    public boolean billable;
+    public Boolean billable;
 
     public boolean archivado;
 }
