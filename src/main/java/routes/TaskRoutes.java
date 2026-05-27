@@ -25,7 +25,28 @@ public class TaskRoutes {
             res.type("application/json");
 
             Gson gson = new Gson();
+            
+            String rol = req.attribute("rol");
 
+            if (!rol.equals("ADMIN")
+                    && !rol.equals("MANAGER")) {
+
+                res.status(403);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "Acceso denegado"));
+            }
+
+            if (req.body() == null || req.body().trim().isEmpty()) {
+
+                res.status(400);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "El body no puede estar vacío"));
+            }
+            
             try {
 
                 Task tarea = gson.fromJson(
@@ -91,8 +112,30 @@ public class TaskRoutes {
 
             try {
 
-                int proyectoId = Integer.parseInt(
-                        req.params(":id"));
+                int proyectoId;
+
+                try {
+
+                    proyectoId = Integer.parseInt(
+                            req.params(":id"));
+
+                } catch (NumberFormatException e) {
+
+                    res.status(400);
+
+                    return gson.toJson(
+                            new ErrorResponse(
+                                    "El ID debe ser numérico"));
+                }
+
+                if (proyectoId <= 0) {
+
+                    res.status(400);
+
+                    return gson.toJson(
+                            new ErrorResponse(
+                                    "ID de proyecto inválido"));
+                }
 
                 boolean archivadas = Boolean.parseBoolean(
                         req.queryParams("archivadas"));
@@ -121,7 +164,18 @@ public class TaskRoutes {
             res.type("application/json");
 
             Gson gson = new Gson();
+            
+            String rol = req.attribute("rol");
 
+            if (!rol.equals("ADMIN")
+                    && !rol.equals("MANAGER")) {
+
+                res.status(403);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "Acceso denegado"));
+            }
             try {
 
                 TaskDAO dao = new TaskDAO();
@@ -138,7 +192,7 @@ public class TaskRoutes {
 
                 return gson.toJson(
                         new ErrorResponse(
-                                "Error al obtener historial"));
+                            "Error al listar tareas"));
             }
         });
 
@@ -151,8 +205,30 @@ public class TaskRoutes {
 
             try {
 
-                int id = Integer.parseInt(
-                        req.params(":id"));
+                int id;
+
+                try {
+
+                    id = Integer.parseInt(
+                            req.params(":id"));
+
+                } catch (NumberFormatException e) {
+
+                    res.status(400);
+
+                    return gson.toJson(
+                            new ErrorResponse(
+                                    "El ID debe ser numérico"));
+                }
+
+                if (id <= 0) {
+
+                    res.status(400);
+
+                    return gson.toJson(
+                            new ErrorResponse(
+                                    "ID de tarea inválido"));
+                }
 
                 TaskDAO dao = new TaskDAO();
 
@@ -188,14 +264,75 @@ public class TaskRoutes {
 
             Gson gson = new Gson();
 
+            String rol = req.attribute("rol");
+
+            if (!rol.equals("ADMIN")
+                    && !rol.equals("MANAGER")) {
+
+                res.status(403);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "Acceso denegado"));
+            }
+
+            int id;
+
             try {
 
-                int id = Integer.parseInt(
-                        req.params(":id"));
+                id = Integer.parseInt(req.params(":id"));
+
+            } catch (NumberFormatException e) {
+
+                res.status(400);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "El ID debe ser numérico"));
+            }
+
+            if (id <= 0) {
+
+                res.status(400);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "ID de tarea inválido"));
+            }
+
+            if (req.body() == null || req.body().trim().isEmpty()) {
+
+                res.status(400);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "El body no puede estar vacío"));
+            }
+
+            try {
 
                 Task tarea = gson.fromJson(
                         req.body(),
                         Task.class);
+
+                if (tarea.proyecto_id <= 0) {
+
+                    res.status(400);
+
+                    return gson.toJson(
+                            new ErrorResponse(
+                                    "proyecto_id inválido"));
+                }
+
+                if (tarea.nombre == null
+                        || tarea.nombre.trim().isEmpty()) {
+
+                    res.status(400);
+
+                    return gson.toJson(
+                            new ErrorResponse(
+                                    "El nombre es obligatorio"));
+                }
 
                 TaskDAO dao = new TaskDAO();
 
@@ -231,42 +368,76 @@ public class TaskRoutes {
         // ELIMINAR
         delete("/tareas/:id", (req, res) -> {
 
-            res.type("application/json");
+                res.type("application/json");
 
-            Gson gson = new Gson();
+                Gson gson = new Gson();
 
-            try {
+                String rol = req.attribute("rol");
 
-                int id = Integer.parseInt(
-                        req.params(":id"));
+                if (!rol.equals("ADMIN")
+                        && !rol.equals("MANAGER")) {
 
-                TaskDAO dao = new TaskDAO();
-
-                boolean eliminado = dao.eliminarTarea(id);
-
-                if (eliminado) {
+                    res.status(403);
 
                     return gson.toJson(
-                            new SuccessResponse(
-                                    "Task eliminada correctamente"));
+                            new ErrorResponse(
+                                    "Acceso denegado"));
                 }
 
-                res.status(500);
+                int id;
 
-                return gson.toJson(
-                        new ErrorResponse(
-                                "No se pudo eliminar Task"));
+                try {
 
-            } catch (Exception e) {
+                    id = Integer.parseInt(
+                            req.params(":id"));
 
-                e.printStackTrace();
+                } catch (NumberFormatException e) {
 
-                res.status(500);
+                    res.status(400);
 
-                return gson.toJson(
-                        new ErrorResponse(
-                                "Error en servidor"));
-            }
-        });
+                    return gson.toJson(
+                            new ErrorResponse(
+                                    "El ID debe ser numérico"));
+                }
+
+                if (id <= 0) {
+
+                    res.status(400);
+
+                    return gson.toJson(
+                            new ErrorResponse(
+                                    "ID de tarea inválido"));
+                }
+
+                try {
+
+                    TaskDAO dao = new TaskDAO();
+
+                    boolean eliminado = dao.eliminarTarea(id);
+
+                    if (eliminado) {
+
+                        return gson.toJson(
+                                new SuccessResponse(
+                                        "Task eliminada correctamente"));
+                    }
+
+                    res.status(500);
+
+                    return gson.toJson(
+                            new ErrorResponse(
+                                    "No se pudo eliminar Task"));
+
+                } catch (Exception e) {
+
+                    e.printStackTrace();
+
+                    res.status(500);
+
+                    return gson.toJson(
+                            new ErrorResponse(
+                                    "Error en servidor"));
+                }
+            });
     }
 }

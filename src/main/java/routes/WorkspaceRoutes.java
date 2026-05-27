@@ -24,7 +24,20 @@ public class WorkspaceRoutes {
                         res.type("application/json");
 
                         Gson gson = new Gson();
+                        
+                        String rol = req.attribute("rol");
 
+                        if (rol == null
+                                        || (!rol.equals("ADMIN")
+                                        && !rol.equals("MANAGER"))) {
+
+                                res.status(403);
+
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "Acceso denegado"));
+                        }
+                        
                         try {
 
                                 WorkspaceDAO dao = new WorkspaceDAO();
@@ -63,6 +76,14 @@ public class WorkspaceRoutes {
                                 return gson.toJson(
                                                 new ErrorResponse(
                                                                 "Acceso denegado"));
+                        }
+                        if (req.body() == null || req.body().trim().isEmpty()) {
+
+                                res.status(400);
+
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "El body no puede estar vacío"));
                         }
 
                         try {
@@ -157,8 +178,39 @@ public class WorkspaceRoutes {
 
                         try {
 
-                                int id = Integer.parseInt(
-                                                req.params(":id"));
+                                int id;
+
+                                try {
+
+                                        id = Integer.parseInt(
+                                                        req.params(":id"));
+
+                                } catch (NumberFormatException e) {
+
+                                        res.status(400);
+
+                                        return gson.toJson(
+                                                        new ErrorResponse(
+                                                                        "El ID debe ser numérico"));
+                                }
+
+                                if (id <= 0) {
+
+                                        res.status(400);
+
+                                        return gson.toJson(
+                                                        new ErrorResponse(
+                                                                        "ID de workspace inválido"));
+                                }
+
+                                if (req.body() == null || req.body().trim().isEmpty()) {
+
+                                        res.status(400);
+
+                                        return gson.toJson(
+                                                        new ErrorResponse(
+                                                                        "El body no puede estar vacío"));
+                                }
 
                                 Workspace workspace = gson.fromJson(
                                                 req.body(),
@@ -216,14 +268,6 @@ public class WorkspaceRoutes {
                                                                         "No se pudo actualizar workspace"));
                                 }
 
-                        } catch (NumberFormatException e) {
-
-                                res.status(400);
-
-                                return gson.toJson(
-                                                new ErrorResponse(
-                                                                "ID inválido"));
-
                         } catch (Exception e) {
 
                                 e.printStackTrace();
@@ -257,8 +301,30 @@ public class WorkspaceRoutes {
 
                         try {
 
-                                int id = Integer.parseInt(
-                                                req.params(":id"));
+                                int id;
+
+                                try {
+
+                                        id = Integer.parseInt(
+                                                        req.params(":id"));
+
+                                } catch (NumberFormatException e) {
+
+                                        res.status(400);
+
+                                        return gson.toJson(
+                                                        new ErrorResponse(
+                                                                        "El ID debe ser numérico"));
+                                }
+
+                                if (id <= 0) {
+
+                                        res.status(400);
+
+                                        return gson.toJson(
+                                                        new ErrorResponse(
+                                                                        "ID de workspace inválido"));
+                                }
 
                                 WorkspaceDAO dao = new WorkspaceDAO();
 
@@ -279,13 +345,6 @@ public class WorkspaceRoutes {
                                                                         "No se pudo eliminar workspace"));
                                 }
 
-                        } catch (NumberFormatException e) {
-
-                                res.status(400);
-
-                                return gson.toJson(
-                                                new ErrorResponse(
-                                                                "ID inválido"));
 
                         } catch (Exception e) {
 
