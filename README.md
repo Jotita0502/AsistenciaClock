@@ -1,4 +1,4 @@
-# AsistenciaGM - Backend (API REST)
+# ASISTENCIACLOCK (API REST)
 
 AsistenciaGM es una API RESTful desarrollada en Java diseñada para la gestión de asistencia, control de tiempos (timers) y administración de espacios de trabajo (workspaces) y proyectos. Su lógica y funcionalidad están fuertemente inspiradas en herramientas como Clockify.
 
