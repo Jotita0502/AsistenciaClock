@@ -25,7 +25,25 @@ public class TagRoutes {
             res.type("application/json");
 
             Gson gson = new Gson();
+            String rol = req.attribute("rol");
 
+            if (!rol.equals("ADMIN")
+                    && !rol.equals("MANAGER")) {
+
+                res.status(403);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "Acceso denegado"));
+            }
+            if (req.body() == null || req.body().trim().isEmpty()) {
+
+                res.status(400);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "El body no puede estar vacío"));
+            }
             try {
 
                 Tag tag = gson.fromJson(
@@ -55,6 +73,14 @@ public class TagRoutes {
                         || tag.color.trim().isEmpty()) {
 
                     tag.color = "#1D9E75";
+                }
+                if (!tag.color.matches("^#([A-Fa-f0-9]{6})$")) {
+
+                    res.status(400);
+
+                    return gson.toJson(
+                            new ErrorResponse(
+                                    "El color debe tener formato hexadecimal. Ejemplo: #1D9E75"));
                 }
 
                 TagDAO dao = new TagDAO();
@@ -97,13 +123,29 @@ public class TagRoutes {
 
             try {
 
-                int workspaceId = Integer.parseInt(
-                        req.params(":id"));
+                int workspaceId;
 
-                TagDAO dao = new TagDAO();
+                try {
 
-                List<Tag> lista = dao.listarTags(workspaceId);
+                    workspaceId = Integer.parseInt(req.params(":id"));
 
+                } catch (NumberFormatException e) {
+
+                    res.status(400);
+
+                    return gson.toJson(
+                            new ErrorResponse("El ID debe ser numérico"));
+                }
+
+                if (workspaceId <= 0) {
+
+                    res.status(400);
+
+                    return gson.toJson(
+                            new ErrorResponse("ID de workspace inválido"));
+                }
+                TagDAO dao = new TagDAO(); 
+                List<Tag> lista = dao.listarTags(workspaceId); 
                 return gson.toJson(lista);
 
             } catch (Exception e) {
@@ -127,8 +169,27 @@ public class TagRoutes {
 
             try {
 
-                int id = Integer.parseInt(
-                        req.params(":id"));
+               int id;
+
+                try {
+
+                    id = Integer.parseInt(req.params(":id"));
+
+                } catch (NumberFormatException e) {
+
+                    res.status(400);
+
+                    return gson.toJson(
+                            new ErrorResponse("El ID debe ser numérico"));
+                }
+
+                if (id <= 0) {
+
+                    res.status(400);
+
+                    return gson.toJson(
+                            new ErrorResponse("ID de etiqueta inválido"));
+                }
 
                 TagDAO dao = new TagDAO();
 
@@ -164,14 +225,86 @@ public class TagRoutes {
 
             Gson gson = new Gson();
 
+            String rol = req.attribute("rol");
+
+            if (!rol.equals("ADMIN")
+                    && !rol.equals("MANAGER")) {
+
+                res.status(403);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "Acceso denegado"));
+            }
+
+            int id;
+
             try {
 
-                int id = Integer.parseInt(
+                id = Integer.parseInt(
                         req.params(":id"));
+
+            } catch (NumberFormatException e) {
+
+                res.status(400);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "El ID debe ser numérico"));
+            }
+
+            if (id <= 0) {
+
+                res.status(400);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "ID de etiqueta inválido"));
+            }
+
+            if (req.body() == null || req.body().trim().isEmpty()) {
+
+                res.status(400);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "El body no puede estar vacío"));
+            }
+
+            try {
 
                 Tag tag = gson.fromJson(
                         req.body(),
                         Tag.class);
+
+                if (tag.nombre == null
+                        || tag.nombre.trim().isEmpty()) {
+
+                    res.status(400);
+
+                    return gson.toJson(
+                            new ErrorResponse(
+                                    "El nombre es obligatorio"));
+                }
+
+                if (tag.color == null
+                        || tag.color.trim().isEmpty()) {
+
+                    res.status(400);
+
+                    return gson.toJson(
+                            new ErrorResponse(
+                                    "El color es obligatorio"));
+                }
+
+                if (!tag.color.matches("^#([A-Fa-f0-9]{6})$")) {
+
+                    res.status(400);
+
+                    return gson.toJson(
+                            new ErrorResponse(
+                                    "El color debe tener formato hexadecimal. Ejemplo: #1D9E75"));
+                }
 
                 TagDAO dao = new TagDAO();
 
@@ -211,10 +344,44 @@ public class TagRoutes {
 
             Gson gson = new Gson();
 
+            String rol = req.attribute("rol");
+
+            if (!rol.equals("ADMIN")
+                    && !rol.equals("MANAGER")) {
+
+                res.status(403);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "Acceso denegado"));
+            }
+
+            int id;
+
             try {
 
-                int id = Integer.parseInt(
+                id = Integer.parseInt(
                         req.params(":id"));
+
+            } catch (NumberFormatException e) {
+
+                res.status(400);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "El ID debe ser numérico"));
+            }
+
+            if (id <= 0) {
+
+                res.status(400);
+
+                return gson.toJson(
+                        new ErrorResponse(
+                                "ID de etiqueta inválido"));
+            }
+
+            try {
 
                 TagDAO dao = new TagDAO();
 
@@ -294,48 +461,92 @@ public class TagRoutes {
         // QUITAR ETIQUETA
         delete("/registros/:registroId/tags/:tagId", (req, res) -> {
 
-            res.type("application/json");
+                res.type("application/json");
 
-            Gson gson = new Gson();
+                Gson gson = new Gson();
 
-            try {
+                int registroId;
 
-                int registroId = Integer.parseInt(
-                        req.params(":registroId"));
+                try {
 
-                int tagId = Integer.parseInt(
-                        req.params(":tagId"));
+                    registroId = Integer.parseInt(
+                            req.params(":registroId"));
 
-                TagDAO dao = new TagDAO();
+                } catch (NumberFormatException e) {
 
-                boolean eliminado = dao.quitarEtiquetaRegistro(
-                        registroId,
-                        tagId);
-
-                if (eliminado) {
+                    res.status(400);
 
                     return gson.toJson(
-                            new SuccessResponse(
-                                    "Etiqueta removida del registro"));
+                            new ErrorResponse(
+                                    "El ID del registro debe ser numérico"));
                 }
 
-                res.status(500);
+                if (registroId <= 0) {
 
-                return gson.toJson(
-                        new ErrorResponse(
-                                "No se pudo remover etiqueta"));
+                    res.status(400);
 
-            } catch (Exception e) {
+                    return gson.toJson(
+                            new ErrorResponse(
+                                    "ID de registro inválido"));
+                }
 
-                e.printStackTrace();
+                int tagId;
 
-                res.status(500);
+                try {
 
-                return gson.toJson(
-                        new ErrorResponse(
-                                "Error en servidor"));
-            }
-        });
+                    tagId = Integer.parseInt(
+                            req.params(":tagId"));
+
+                } catch (NumberFormatException e) {
+
+                    res.status(400);
+
+                    return gson.toJson(
+                            new ErrorResponse(
+                                    "El ID de etiqueta debe ser numérico"));
+                }
+
+                if (tagId <= 0) {
+
+                    res.status(400);
+
+                    return gson.toJson(
+                            new ErrorResponse(
+                                    "ID de etiqueta inválido"));
+                }
+
+                try {
+
+                    TagDAO dao = new TagDAO();
+
+                    boolean eliminado = dao.quitarEtiquetaRegistro(
+                            registroId,
+                            tagId);
+
+                    if (eliminado) {
+
+                        return gson.toJson(
+                                new SuccessResponse(
+                                        "Etiqueta removida del registro"));
+                    }
+
+                    res.status(500);
+
+                    return gson.toJson(
+                            new ErrorResponse(
+                                    "No se pudo remover etiqueta"));
+
+                } catch (Exception e) {
+
+                    e.printStackTrace();
+
+                    res.status(500);
+
+                    return gson.toJson(
+                            new ErrorResponse(
+                                    "Error en servidor"));
+                }
+            });
 
         // ETIQUETAS POR REGISTRO
         get("/registros/:id/tags", (req, res) -> {
@@ -346,8 +557,27 @@ public class TagRoutes {
 
             try {
 
-                int registroId = Integer.parseInt(
-                        req.params(":id"));
+                int registroId;
+
+                try {
+
+                    registroId = Integer.parseInt(req.params(":id"));
+
+                } catch (NumberFormatException e) {
+
+                    res.status(400);
+
+                    return gson.toJson(
+                            new ErrorResponse("El ID debe ser numérico"));
+                }
+
+                if (registroId <= 0) {
+
+                    res.status(400);
+
+                    return gson.toJson(
+                            new ErrorResponse("ID de registro inválido"));
+                }
 
                 TagDAO dao = new TagDAO();
 
