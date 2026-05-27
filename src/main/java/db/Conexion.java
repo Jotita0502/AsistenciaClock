@@ -17,7 +17,7 @@ public class Conexion {
             String PORT = dotenv.get("DB_PORT");
             String DATABASE = dotenv.get("DB_NAME");
             String URL = "jdbc:mysql://" + HOST + ":" + PORT + "/" + DATABASE
-                    + "?useSSL=true&sslMode=REQUIRED&serverTimezone=UTC";
+                + "?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
             String USER = dotenv.get("DB_USER");
             String PASSWORD = dotenv.get("DB_PASSWORD");
 

@@ -93,6 +93,15 @@ public class ProjectRoutes {
                                                                         "El color es obligatorio"));
                                 }
 
+                                if (!proyecto.color.matches("^#([A-Fa-f0-9]{6})$")) {
+
+                                        res.status(400);
+
+                                        return gson.toJson(
+                                                        new ErrorResponse(
+                                                                        "El color debe tener formato hexadecimal. Ejemplo: #FF5733"));
+                                }
+
                                 if (proyecto.workspace_id <= 0) {
 
                                         res.status(400);
@@ -135,10 +144,20 @@ public class ProjectRoutes {
                 put("/proyectos/:id", (req, res) -> {
 
                         res.type("application/json");
-
-                        int id = Integer.parseInt(req.params(":id"));
-
+                        
                         Gson gson = new Gson();
+                        int id = Integer.parseInt(req.params(":id"));
+                        
+                        if (id <= 0) {
+
+                                res.status(400);
+
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "ID de proyecto inválido"));
+                        }
+
+                        
                         String rol = req.attribute("rol");
 
                         if (!rol.equals("ADMIN")
@@ -170,6 +189,15 @@ public class ProjectRoutes {
                                 return gson.toJson(
                                                 new ErrorResponse(
                                                                 "El color es obligatorio"));
+                        }
+
+                        if (!proyecto.color.matches("^#([A-Fa-f0-9]{6})$")) {
+
+                                res.status(400);
+
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "El color debe tener formato hexadecimal. Ejemplo: #FF5733"));
                         }
 
                         ProjectDAO dao = new ProjectDAO();
@@ -209,6 +237,15 @@ public class ProjectRoutes {
                         }
 
                         int id = Integer.parseInt(req.params(":id"));
+
+                        if (id <= 0) {
+
+                                res.status(400);
+
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "ID de proyecto inválido"));
+                        }
 
                         ProjectDAO dao = new ProjectDAO();
 

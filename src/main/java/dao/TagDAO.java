@@ -249,6 +249,8 @@ public class TagDAO {
             cs.setInt(1, registroId);
 
             cs.setInt(2, etiquetaId);
+            
+            cs.execute();
 
             cs.close();
             con.close();
