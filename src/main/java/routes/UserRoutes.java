@@ -31,13 +31,24 @@ public class UserRoutes {
 
                         Gson gson = new Gson();
 
+                        res.type("application/json");
+
+                        String rol = req.attribute("rol");
+
+                        if (!rol.equals("ADMIN")) {
+
+                                res.status(403);
+
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "Acceso denegado"));
+                        }
+
                         try {
 
                                 UserDAO dao = new UserDAO();
 
                                 List<User> lista = dao.listarUsuarios();
-
-                                res.type("application/json");
 
                                 return gson.toJson(lista);
 
@@ -63,6 +74,14 @@ public class UserRoutes {
                                 return gson.toJson(
                                                 new ErrorResponse(
                                                                 "Acceso denegado"));
+                        }
+                        if (req.body() == null || req.body().trim().isEmpty()) {
+
+                                res.status(400);
+
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "El body no puede estar vacío"));
                         }
                         try {
 
@@ -91,6 +110,14 @@ public class UserRoutes {
                                                         new ErrorResponse(
                                                                         "El correo es obligatorio"));
                                 }
+                                if (!u.correo.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+
+                                        res.status(400);
+
+                                        return gson.toJson(
+                                                        new ErrorResponse(
+                                                                        "Formato de correo inválido"));
+                                }
 
                                 // VALIDAR PASSWORD
 
@@ -114,12 +141,21 @@ public class UserRoutes {
                                                         new ErrorResponse(
                                                                         "La contraseña debe tener mínimo 6 caracteres"));
                                 }
+                                if (u.password.contains(" ")) {
+
+                                        res.status(400);
+
+                                        return gson.toJson(
+                                                        new ErrorResponse(
+                                                                        "La contraseña no puede contener espacios"));
+                                }
 
                                 // VALIDAR ROL
 
-                                if (!u.rol.equals("ADMIN")
+                                if (u.rol == null
+                                || (!u.rol.equals("ADMIN")
                                                 && !u.rol.equals("MANAGER")
-                                                && !u.rol.equals("EMPLEADO")) {
+                                                && !u.rol.equals("EMPLEADO"))) {
 
                                         res.status(400);
 
@@ -174,7 +210,37 @@ public class UserRoutes {
                                                                 "Acceso denegado"));
                         }
 
-                        int id = Integer.parseInt(req.params(":id"));
+                        int id;
+
+                        try {
+
+                                id = Integer.parseInt(req.params(":id"));
+
+                        } catch (NumberFormatException e) {
+
+                                res.status(400);
+
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "El ID debe ser numérico"));
+                        }
+
+                        if (id <= 0) {
+
+                                res.status(400);
+
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "ID de usuario inválido"));
+                        }
+                        if (req.body() == null || req.body().trim().isEmpty()) {
+
+                                res.status(400);
+
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "El body no puede estar vacío"));
+                        }
 
                         User usuario = gson.fromJson(req.body(), User.class);
 
@@ -199,6 +265,14 @@ public class UserRoutes {
                                                 new ErrorResponse(
                                                                 "El correo es obligatorio"));
                         }
+                        if (!usuario.correo.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+
+                                res.status(400);
+
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "Formato de correo inválido"));
+                        }
                         if (usuario.password == null
                                         || usuario.password.trim().isEmpty()) {
 
@@ -217,9 +291,18 @@ public class UserRoutes {
                                                 new ErrorResponse(
                                                                 "La contraseña debe tener mínimo 6 caracteres"));
                         }
-                        if (!usuario.rol.equals("ADMIN")
+                        if (usuario.password.contains(" ")) {
+
+                                res.status(400);
+
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "La contraseña no puede contener espacios"));
+                        }
+                        if (usuario.rol == null
+                                        || (!usuario.rol.equals("ADMIN")
                                         && !usuario.rol.equals("MANAGER")
-                                        && !usuario.rol.equals("EMPLEADO")) {
+                                        && !usuario.rol.equals("EMPLEADO"))) {
 
                                 res.status(400);
 
@@ -265,7 +348,29 @@ public class UserRoutes {
                                                                 "Acceso denegado"));
                         }
 
-                        int id = Integer.parseInt(req.params(":id"));
+                        int id;
+
+                        try {
+
+                                id = Integer.parseInt(req.params(":id"));
+
+                        } catch (NumberFormatException e) {
+
+                                res.status(400);
+
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "El ID debe ser numérico"));
+                        }
+
+                        if (id <= 0) {
+
+                                res.status(400);
+
+                                return gson.toJson(
+                                                new ErrorResponse(
+                                                                "ID de usuario inválido"));
+                        }
 
                         UserDAO dao = new UserDAO();
 
