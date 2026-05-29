@@ -25,16 +25,47 @@ public class AuthRoutes {
 
             try {
                 Gson gson = new Gson();
+                res.type("application/json");
+                if (req.body() == null || req.body().trim().isEmpty()) {
+
+                    res.status(400);
+
+                    return gson.toJson(
+                            new ErrorResponse(
+                                    "El body no puede estar vacío"));
+                }
                 LoginRequest data = gson.fromJson(req.body(), LoginRequest.class);
 
-                if (data == null || data.correo == null || data.password == null
-                        || data.correo.isEmpty() || data.password.isEmpty()) {
+                if (data == null
+                        || data.correo == null
+                        || data.correo.trim().isEmpty()) {
+
                     res.status(400);
-                    return gson.toJson(new ErrorResponse("Faltan datos de login"));
+
+                    return gson.toJson(
+                            new ErrorResponse(
+                                    "El correo es obligatorio"));
+                }
+
+                if (data.password == null
+                        || data.password.trim().isEmpty()) {
+
+                    res.status(400);
+
+                    return gson.toJson(
+                            new ErrorResponse(
+                                    "La contraseña es obligatoria"));
+                }
+                
+                if (!data.correo.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+
+                    res.status(400);
+
+                    return gson.toJson(
+                            new ErrorResponse(
+                                    "Formato de correo inválido"));
                 }
                 User user = LoginDAO.login(data.correo, data.password);
-
-                res.type("application/json");
 
                 if (user != null) {
                     String token = JwtUtil.generarToken(
