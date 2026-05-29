@@ -25,11 +25,44 @@ public class TimerRoutes {
                         Gson gson = new Gson();
 
                         try {
+                                if (req.body() == null || req.body().trim().isEmpty()) {
 
+                                        res.status(400);
+
+                                        return gson.toJson(
+                                                        new ErrorResponse(
+                                                                        "El body no puede estar vacío"));
+                                }
                                 Timer asistencia = gson.fromJson(
                                                 req.body(),
                                                 Timer.class);
+                                if (asistencia.workspace_id <= 0) {
 
+                                        res.status(400);
+
+                                        return gson.toJson(
+                                                        new ErrorResponse(
+                                                                        "workspace_id inválido"));
+                                }
+
+                                if (asistencia.proyecto_id <= 0) {
+
+                                        res.status(400);
+
+                                        return gson.toJson(
+                                                        new ErrorResponse(
+                                                                        "proyecto_id inválido"));
+                                }
+
+                                if (asistencia.descripcion == null
+                                                || asistencia.descripcion.trim().isEmpty()) {
+
+                                        res.status(400);
+
+                                        return gson.toJson(
+                                                        new ErrorResponse(
+                                                                        "La descripción es obligatoria"));
+                                }
                                 int usuarioId = req.attribute("usuario_id");
 
                                 asistencia.usuario_id = usuarioId;
