@@ -142,12 +142,12 @@ Implementa un **CRUD completo de Tasks**.
 
 | Método   | Endpoint                | Rol Requerido | Descripción                                                           |
 | -------- | ----------------------- | ------------- | --------------------------------------------------------------------- |
-| `GET`    | `/tareas`               | Autenticado   | Lista todas las tareas del sistema.                                   |
+| `GET`    | `/tareas`               | **ADMIN**, **MANAGER**   | Lista todas las tareas del sistema.                                   |
 | `GET`    | `/proyectos/:id/tareas` | Autenticado   | Lista las tareas asociadas a un proyecto específico.                  |
 | `GET`    | `/tareas/:id`           | Autenticado   | Obtiene el detalle de una tarea por su ID.                            |
-| `POST`   | `/tareas`               | Autenticado   | Crea una nueva tarea asociada a un proyecto. Requerido body JSON.     |
-| `PUT`    | `/tareas/:id`           | Autenticado   | Actualiza los datos de una tarea (nombre, etc.). Requerido body JSON. |
-| `DELETE` | `/tareas/:id`           | Autenticado   | Realiza una baja lógica (archiva) de la tarea.                        |
+| `POST`   | `/tareas`               | **ADMIN**, **MANAGER**   | Crea una nueva tarea asociada a un proyecto. Requerido body JSON.     |
+| `PUT`    | `/tareas/:id`           | **ADMIN**, **MANAGER**   | Actualiza los datos de una tarea (nombre, etc.). Requerido body JSON. |
+| `DELETE` | `/tareas/:id`           | **ADMIN**   | Realiza una baja lógica (archiva) de la tarea.                        |
 
 ### 🏷️ Etiquetas (`/tags` y Relaciones)
 
@@ -157,9 +157,9 @@ Implementa un **CRUD completo de Tags** y permite la **Relación registro-etique
 | -------- | ------------------------------------ | ------------- | -------------------------------------------------------------------------------- |
 | `GET`    | `/workspaces/:id/tags`               | Autenticado   | Lista las etiquetas pertenecientes a un workspace.                               |
 | `GET`    | `/tags/:id`                          | Autenticado   | Obtiene el detalle de una etiqueta por su ID.                                    |
-| `POST`   | `/tags`                              | Autenticado   | Crea una nueva etiqueta. Requiere body JSON (`workspace_id`, `nombre`, `color`). |
-| `PUT`    | `/tags/:id`                          | Autenticado   | Actualiza el nombre o color de una etiqueta existente.                           |
-| `DELETE` | `/tags/:id`                          | Autenticado   | Elimina permanentemente una etiqueta.                                            |
+| `POST`   | `/tags`                              | **ADMIN**, **MANAGER**   | Crea una nueva etiqueta. Requiere body JSON (`workspace_id`, `nombre`, `color`). |
+| `PUT`    | `/tags/:id`                          | **ADMIN**, **MANAGER**   | Actualiza el nombre o color de una etiqueta existente.                           |
+| `DELETE` | `/tags/:id`                          | **ADMIN**, **MANAGER**   | Elimina permanentemente una etiqueta.                                            |
 | `POST`   | `/registros/:registroId/tags/:tagId` | Autenticado   | Asocia una etiqueta a un registro de tiempo (**Relación registro-etiqueta**).    |
 | `DELETE` | `/registros/:registroId/tags/:tagId` | Autenticado   | Elimina la asociación de una etiqueta a un registro de tiempo.                   |
 | `GET`    | `/registros/:id/tags`                | Autenticado   | Lista las etiquetas asociadas a un registro de tiempo específico.                |
@@ -265,3 +265,12 @@ Próximamente:
 🔄 Frontend Angular
 🔄 Dashboard visual
 🔄 Deploy en nube
+
+## 👨‍💻 Autor
+
+Joaquín Ricardo Conde Espíritu
+
+Proyecto académico desarrollado como parte de la asignatura de Desarrollo Backend y Gestión de Tiempos.
+
+GitHub:
+https://github.com/Jotita0502
