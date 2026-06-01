@@ -147,7 +147,7 @@ Implementa un **CRUD completo de Tasks**.
 | `GET`    | `/tareas/:id`           | Autenticado   | Obtiene el detalle de una tarea por su ID.                            |
 | `POST`   | `/tareas`               | **ADMIN**, **MANAGER**   | Crea una nueva tarea asociada a un proyecto. Requerido body JSON.     |
 | `PUT`    | `/tareas/:id`           | **ADMIN**, **MANAGER**   | Actualiza los datos de una tarea (nombre, etc.). Requerido body JSON. |
-| `DELETE` | `/tareas/:id`           | **ADMIN**   | Realiza una baja lógica (archiva) de la tarea.                        |
+| `DELETE` | `/tareas/:id`           | **ADMIN**, **MANAGER**   | Realiza una baja lógica (archiva) de la tarea.                        |
 
 ### 🏷️ Etiquetas (`/tags` y Relaciones)
 
@@ -239,7 +239,7 @@ La API utiliza un formato estándar para devolver respuestas en base a los estad
 
 ```json
 {
-  "mensaje": "El nombre del proyecto es obligatorio"
+  "error": "El nombre del proyecto es obligatorio"
 }
 ```
 
