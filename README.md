@@ -20,23 +20,32 @@ Este proyecto utiliza **Spark Java** como micro-framework web, **JWT** para la a
 - GitHub
 
 ## 🏛️ Arquitectura
-
 API REST basada en arquitectura por capas:
+### Flujo principal
 
-Routes
-↓
-DAO
-↓
-Stored Procedures
-↓
-MySQL
+```text
+Cliente / Postman / Frontend
+          ↓
+       Routes
+          ↓
+         DAO
+          ↓
+ Stored Procedures
+          ↓
+        MySQL
+```
 
+### Flujo de seguridad
+
+```text
+Request HTTP
+     ↓
 JWT Middleware
-↓
+     ↓
 Validación de Roles
-↓
-Endpoints Protegidos
-
+     ↓
+Endpoint Protegido
+```
 ## 🏗️ Estructura General del Proyecto
 
 El proyecto sigue una arquitectura organizada y modularizada:
