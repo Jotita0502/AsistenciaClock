@@ -6,6 +6,37 @@ Este proyecto utiliza **Spark Java** como micro-framework web, **JWT** para la a
 
 ---
 
+## 🛠️ Tecnologías
+
+- Java 11
+- Spark Java
+- Maven
+- MySQL 8
+- JWT
+- BCrypt
+- Gson
+- Postman
+- Git
+- GitHub
+
+## 🏛️ Arquitectura
+
+API REST basada en arquitectura por capas:
+
+Routes
+↓
+DAO
+↓
+Stored Procedures
+↓
+MySQL
+
+JWT Middleware
+↓
+Validación de Roles
+↓
+Endpoints Protegidos
+
 ## 🏗️ Estructura General del Proyecto
 
 El proyecto sigue una arquitectura organizada y modularizada:
@@ -82,7 +113,7 @@ A continuación se detallan los principales recursos expuestos por la API. Todas
 
 | Método   | Endpoint        | Rol Requerido | Descripción                                                                                |
 | -------- | --------------- | ------------- | ------------------------------------------------------------------------------------------ |
-| `GET`    | `/usuarios`     | Autenticado   | Lista todos los usuarios activos del sistema.                                              |
+| `GET`    | `/usuarios`     | **ADMIN**     | Lista todos los usuarios activos del sistema.                                              |
 | `POST`   | `/usuarios`     | **ADMIN**     | Crea un nuevo usuario. Valida nombre, correo, longitud de contraseña (min 6) y rol válido. |
 | `PUT`    | `/usuarios/:id` | **ADMIN**     | Actualiza los datos de un usuario existente.                                               |
 | `DELETE` | `/usuarios/:id` | **ADMIN**     | Realiza una baja lógica (desactiva) a un usuario por ID.                                   |
@@ -91,7 +122,7 @@ A continuación se detallan los principales recursos expuestos por la API. Todas
 
 | Método   | Endpoint          | Rol Requerido          | Descripción                                                                             |
 | -------- | ----------------- | ---------------------- | --------------------------------------------------------------------------------------- |
-| `GET`    | `/workspaces`     | Autenticado            | Devuelve la lista de espacios de trabajo.                                               |
+| `GET`    | `/workspaces`     | **ADMIN**, **MANAGER** | Devuelve la lista de espacios de trabajo.                                               |
 | `POST`   | `/workspaces`     | **ADMIN**, **MANAGER** | Crea un nuevo workspace. Valida nombre, descripción y el ID del propietario (owner_id). |
 | `PUT`    | `/workspaces/:id` | **ADMIN**, **MANAGER** | Modifica la información básica de un workspace.                                         |
 | `DELETE` | `/workspaces/:id` | **ADMIN**              | Elimina permanentemente un workspace específico.                                        |
@@ -144,6 +175,56 @@ Implementa un **CRUD completo de Tags** y permite la **Relación registro-etique
 
 ---
 
+## ✅ Validaciones Implementadas
+
+La API implementa validaciones de entrada para garantizar integridad de datos:
+
+- Body obligatorio.
+- IDs numéricos.
+- IDs mayores a cero.
+- Correos válidos.
+- Contraseñas mínimas de 6 caracteres.
+- Roles válidos.
+- workspace_id válido.
+- proyecto_id válido.
+- Color hexadecimal válido (#RRGGBB).
+- JWT obligatorio para rutas protegidas.
+- Restricción por roles.
+
+## 📮 Colección Postman
+
+El proyecto incluye una colección de Postman lista para pruebas manuales de todos los endpoints.
+
+Ubicación:
+
+docs/postman/AsistenciaClock_API_Backend.postman_collection.json
+
+Environment:
+
+docs/postman/AsistenciaClock_Local.postman_environment.json
+
+### Variables principales
+
+| Variable | Descripción |
+|-----------|------------|
+| base_url | URL base de la API |
+| admin_token | JWT ADMIN |
+| manager_token | JWT MANAGER |
+| empleado_token | JWT EMPLEADO |
+| workspace_id | Workspace de pruebas |
+| project_id | Proyecto de pruebas |
+| task_id | Task de pruebas |
+| tag_id | Tag de pruebas |
+| registro_id | Registro de tiempo de pruebas |
+
+### Flujo recomendado
+
+1. Ejecutar Login ADMIN.
+2. Copiar JWT recibido.
+3. Guardar JWT en admin_token.
+4. Probar endpoints protegidos.
+   
+---   
 ## ⚠️ Manejo de Errores
 
 La API utiliza un formato estándar para devolver respuestas en base a los estados HTTP:
@@ -161,3 +242,26 @@ La API utiliza un formato estándar para devolver respuestas en base a los estad
   "mensaje": "El nombre del proyecto es obligatorio"
 }
 ```
+
+## 📌 Estado del Proyecto
+
+Versión actual: v1.0
+
+Módulos implementados:
+
+✅ Autenticación JWT
+✅ Usuarios
+✅ Workspaces
+✅ Proyectos
+✅ Tareas
+✅ Etiquetas
+✅ Timers
+✅ Historial
+✅ Validaciones
+✅ Colección Postman
+
+Próximamente:
+
+🔄 Frontend Angular
+🔄 Dashboard visual
+🔄 Deploy en nube
