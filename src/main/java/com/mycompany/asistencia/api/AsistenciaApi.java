@@ -8,7 +8,7 @@ package com.mycompany.asistencia.api;
 import static spark.Spark.*;
 
 import utils.JwtUtil;
-import static spark.Spark.before;
+
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 import db.Conexion;
@@ -23,10 +23,53 @@ import routes.TagRoutes;
 public class AsistenciaApi {
 
     public static void main(String[] args) {
-        String hashNativo = org.mindrot.jbcrypt.BCrypt.hashpw("admin123", org.mindrot.jbcrypt.BCrypt.gensalt(10));
-        System.out.println("🎯 TU HASH PERFECTO ES: " + hashNativo);
-
         port(4567);
+        before((request, response) -> {
+
+            response.header("Access-Control-Allow-Origin", "http://localhost:4200");
+            response.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+            response.header("Access-Control-Allow-Headers", "Content-Type,Authorization");
+
+            if (request.requestMethod().equals("OPTIONS")) {
+                halt(200);
+            }
+
+            String path = request.pathInfo();
+
+            if (path.equals("/login") || path.equals("/test") || path.equals("/test-conexion")) {
+                return;
+            }
+
+            String authHeader = request.headers("Authorization");
+
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                halt(401, "{\"error\":\"Token requerido\"}");
+            }
+
+            String token = authHeader.replace("Bearer ", "");
+            boolean valido = JwtUtil.validarToken(token);
+
+            if (!valido) {
+                halt(401, "{\"error\":\"Token inválido\"}");
+            }
+
+            DecodedJWT jwt = JwtUtil.obtenerTokenDecodificado(token);
+
+            String rol = jwt.getClaim("rol").asString();
+            int usuarioId = jwt.getClaim("id").asInt();
+
+            request.attribute("rol", rol);
+            request.attribute("usuario_id", usuarioId);
+        });
+
+        options("/*", (req, res) -> {
+            res.header("Access-Control-Allow-Origin", "http://localhost:4200");
+            res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+            res.header("Access-Control-Allow-Headers", "Content-Type,Authorization");
+            res.status(200);
+            return "OK";
+        });
+
 
         System.out.println("🔥 API INICIADA 🔥");
 
@@ -63,8 +106,6 @@ public class AsistenciaApi {
             request.attribute("rol", rol);
 
             int usuarioId = jwt.getClaim("id").asInt();
-
-            request.attribute("rol", rol);
 
             request.attribute("usuario_id", usuarioId);
 

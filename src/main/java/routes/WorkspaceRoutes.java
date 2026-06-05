@@ -28,8 +28,9 @@ public class WorkspaceRoutes {
                         String rol = req.attribute("rol");
 
                         if (rol == null
-                                        || (!rol.equals("ADMIN")
-                                        && !rol.equals("MANAGER"))) {
+                            || (!rol.equals("ADMIN")
+                            && !rol.equals("MANAGER")
+                            && !rol.equals("EMPLEADO"))) {
 
                                 res.status(403);
 

@@ -52,7 +52,45 @@ public class ProjectDAO {
 
         return lista;
     }
+    public List<Project> listarProyectosArchivados() {
 
+        List<Project> lista = new ArrayList<>();
+
+        try {
+
+            Connection con = Conexion.conectar();
+
+            String sql = "{CALL sp_listar_proyectos_archivados()}";
+
+            CallableStatement cs = con.prepareCall(sql);
+
+            ResultSet rs = cs.executeQuery();
+
+            while (rs.next()) {
+
+                Project p = new Project();
+
+                p.id = rs.getInt("id");
+                p.workspace_id = rs.getInt("workspace_id");
+                p.nombre = rs.getString("nombre");
+                p.color = rs.getString("color");
+                p.billable = rs.getBoolean("billable");
+                p.archivado = rs.getBoolean("archivado");
+
+                lista.add(p);
+            }
+
+            rs.close();
+            cs.close();
+            con.close();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
+
+        return lista;
+    }
     public boolean crearProyecto(Project proyecto) {
 
         try {
@@ -91,7 +129,28 @@ public class ProjectDAO {
             return false;
         }
     }
+    public boolean restaurarProyecto(int id) {
+        try {
+            Connection con = Conexion.conectar();
 
+            String sql = "{CALL sp_restaurar_proyecto(?)}";
+
+            CallableStatement cs = con.prepareCall(sql);
+
+            cs.setInt(1, id);
+
+            int filas = cs.executeUpdate();
+
+            cs.close();
+            con.close();
+
+            return filas > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
     public boolean actualizarProyecto(int id, Project proyecto) {
         try {
 

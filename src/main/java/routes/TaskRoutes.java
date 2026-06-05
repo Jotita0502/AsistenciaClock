@@ -168,7 +168,8 @@ public class TaskRoutes {
             String rol = req.attribute("rol");
 
             if (!rol.equals("ADMIN")
-                    && !rol.equals("MANAGER")) {
+                && !rol.equals("MANAGER")
+                && !rol.equals("EMPLEADO")) {
 
                 res.status(403);
 
@@ -419,14 +420,14 @@ public class TaskRoutes {
 
                         return gson.toJson(
                                 new SuccessResponse(
-                                        "Task eliminada correctamente"));
+                                        "Task archivado correctamente"));
                     }
 
                     res.status(500);
 
                     return gson.toJson(
                             new ErrorResponse(
-                                    "No se pudo eliminar Task"));
+                                    "No se pudo archivar Task"));
 
                 } catch (Exception e) {
 

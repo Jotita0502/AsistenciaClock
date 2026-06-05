@@ -51,6 +51,32 @@ public class ProjectRoutes {
                                                 new ErrorResponse("Error al listar proyectos"));
                         }
                 });
+                get("/proyectos/archivados", (req, res) -> {
+
+                    Gson gson = new Gson();
+
+                    try {
+
+                        ProjectDAO dao = new ProjectDAO();
+
+                        List<Project> lista =
+                                dao.listarProyectosArchivados();
+
+                        res.type("application/json");
+
+                        return gson.toJson(lista);
+
+                    } catch (Exception e) {
+
+                        e.printStackTrace();
+
+                        res.status(500);
+
+                        return gson.toJson(
+                                new ErrorResponse(
+                                        "Error al listar proyectos archivados"));
+                    }
+                });
                 post("/proyectos", (req, res) -> {
 
                         res.type("application/json");
@@ -157,6 +183,45 @@ public class ProjectRoutes {
                                                                 "Error en servidor"));
                         }
                 });
+                put("/proyectos/:id/restaurar", (req, res) -> {
+                    res.type("application/json");
+
+                    Gson gson = new Gson();
+
+                    String rol = req.attribute("rol");
+
+                    if (!rol.equals("ADMIN") && !rol.equals("MANAGER")) {
+                        res.status(403);
+                        return gson.toJson(new ErrorResponse("Acceso denegado"));
+                    }
+
+                    int id;
+
+                    try {
+                        id = Integer.parseInt(req.params(":id"));
+                    } catch (NumberFormatException e) {
+                        res.status(400);
+                        return gson.toJson(new ErrorResponse("El ID debe ser numérico"));
+                    }
+
+                    if (id <= 0) {
+                        res.status(400);
+                        return gson.toJson(new ErrorResponse("ID de proyecto inválido"));
+                    }
+
+                    ProjectDAO dao = new ProjectDAO();
+
+                    boolean restaurado = dao.restaurarProyecto(id);
+
+                    if (restaurado) {
+                        return gson.toJson(
+                            new SuccessResponse("Proyecto restaurado correctamente")
+                        );
+                    }
+
+                    res.status(500);
+                    return gson.toJson(new ErrorResponse("No se pudo restaurar proyecto"));
+                });
                 put("/proyectos/:id", (req, res) -> {
 
                         res.type("application/json");
@@ -261,7 +326,7 @@ public class ProjectRoutes {
 
                         String rol = req.attribute("rol");
 
-                        if (!rol.equals("ADMIN")) {
+                        if (!rol.equals("ADMIN") && !rol.equals("MANAGER")) {
 
                                 res.status(403);
 
@@ -302,7 +367,7 @@ public class ProjectRoutes {
 
                                 return gson.toJson(
                                                 new SuccessResponse(
-                                                                "Proyecto eliminado correctamente"));
+                                                                "Proyecto archivado correctamente"));
 
                         } else {
 

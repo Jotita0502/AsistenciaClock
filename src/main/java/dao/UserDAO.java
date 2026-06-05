@@ -148,4 +148,121 @@ public class UserDAO {
             return false;
         }
     }
+    public boolean actualizarMiPerfil(int id, User usuario) {
+
+        try {
+
+            Connection con = Conexion.conectar();
+
+            String sql = "{CALL sp_actualizar_mi_perfil(?, ?, ?)}";
+
+            CallableStatement cs = con.prepareCall(sql);
+
+            cs.setInt(1, id);
+            cs.setString(2, usuario.nombre);
+            cs.setString(3, usuario.correo);
+
+            int filas = cs.executeUpdate();
+
+            cs.close();
+            con.close();
+
+            return filas > 0;
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            return false;
+        }
+    }
+    public String obtenerPasswordHash(int id) {
+
+        try {
+
+            Connection con = Conexion.conectar();
+
+            String sql = "SELECT password_hash FROM usuarios WHERE id = ?";
+
+            java.sql.PreparedStatement ps = con.prepareStatement(sql);
+
+            ps.setInt(1, id);
+
+            ResultSet rs = ps.executeQuery();
+
+            String hash = null;
+
+            if (rs.next()) {
+                hash = rs.getString("password_hash");
+            }
+
+            rs.close();
+            ps.close();
+            con.close();
+
+            return hash;
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            return null;
+        }
+    }
+    public boolean actualizarMiPassword(int id, String nuevaPassword) {
+
+        try {
+
+            Connection con = Conexion.conectar();
+
+            String sql = "{CALL sp_actualizar_mi_password(?, ?)}";
+
+            CallableStatement cs = con.prepareCall(sql);
+
+            String hash = BCrypt.hashpw(
+                    nuevaPassword,
+                    BCrypt.gensalt());
+
+            cs.setInt(1, id);
+            cs.setString(2, hash);
+
+            int filas = cs.executeUpdate();
+
+            cs.close();
+            con.close();
+
+            return filas > 0;
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            return false;
+        }
+    }
+    public boolean actualizarUsuarioDatos(int id, User usuario) {
+
+        try {
+
+            Connection con = Conexion.conectar();
+
+            String sql = "{CALL sp_actualizar_usuario_datos(?, ?, ?, ?)}";
+
+            CallableStatement cs = con.prepareCall(sql);
+
+            cs.setInt(1, id);
+            cs.setString(2, usuario.nombre);
+            cs.setString(3, usuario.correo);
+            cs.setString(4, usuario.rol);
+
+            int filas = cs.executeUpdate();
+
+            cs.close();
+            con.close();
+
+            return filas > 0;
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            return false;
+        }
+    }    
 }
